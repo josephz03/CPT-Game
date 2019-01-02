@@ -116,10 +116,10 @@ def main_menu():
 def instructions():    
     instruction_menu = True
     book_opening = True
-    lx = 500
-    rx = 720
-    uy = 160
-    dy = 480
+    leftx = 500
+    rightx = 720
+    upy = 160
+    downy = 480
     shadow = 2
     cover_x = 0
     cover_y = 0
@@ -136,14 +136,14 @@ def instructions():
         displayText(text_font('comicsansms', 15, True, False), 'BACK', black, 35, 26)
         
         if book_opening == True:
-            pygame.draw.polygon(displayScreen, black, [(lx+shadow, uy+shadow), (lx+shadow, dy+shadow), (rx+shadow, dy+shadow), (rx+shadow, uy+shadow)])
-            pygame.draw.polygon(displayScreen, midnight_blue, [(lx, uy), (lx, dy), (rx, dy), (rx, uy)])
-            if uy == 20:
-                uy += 0
-                dy += 0
-                if rx == 1100:
-                    lx += 0
-                    rx += 0
+            pygame.draw.polygon(displayScreen, black, [(leftx+shadow, upy+shadow), (leftx+shadow, downy+shadow), (rightx+shadow, downy+shadow), (rightx+shadow, upy+shadow)])
+            pygame.draw.polygon(displayScreen, midnight_blue, [(leftx, upy), (leftx, downy), (rightx, downy), (rightx, upy)])
+            if upy == 20:
+                upy += 0
+                downy += 0
+                if rightx == 1100:
+                    leftx += 0
+                    rightx += 0
                     shadow = 0
                     pygame.draw.polygon(displayScreen, white, [(600, 22), (600, 618), (1098, 618), (1098, 22)])
                     pygame.draw.polygon(displayScreen, black, [(600, 22), (600, 618), (1098, 618), (1098, 22)], 1)
@@ -163,13 +163,13 @@ def instructions():
                     elif cover_x > 510:
                         cover_y += -2
                 else:
-                    lx += 2
-                    rx += 2
+                    leftx += 2
+                    rightx += 2
             else:
-                lx -= 2
-                rx += 2
-                uy -= 2
-                dy += 2
+                leftx -= 2
+                rightx += 2
+                upy -= 2
+                downy += 2
 
         pygame.display.update()
         clock.tick(120)
