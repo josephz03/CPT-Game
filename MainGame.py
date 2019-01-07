@@ -25,11 +25,12 @@ plx = 500
 ply = 250
 xmov = 0
 ymov = 0
-ms = 2
+basic_speed = 2
+ms = basic_speed
 
 
 displayScreen = pygame.display.set_mode((display_width,display_height))
-pygame.display.set_caption('Test')
+pygame.display.set_caption('The Survivor')
 clock = pygame.time.Clock()
 
 
@@ -69,19 +70,46 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
         pygame.draw.rect(displayScreen, colour, (xcoord, ycoord, rectlength, rectwidth), thickness)
 
 
-def character():
+def character(charpos):
     global plx, ply, xmov, ymov
-    pygame.draw.rect(displayScreen, tan, (plx+8, ply-10, 20, 10))
-    pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
-    pygame.draw.rect(displayScreen, black, (plx+8, ply-32, 4, 8))
-    pygame.draw.rect(displayScreen, black, (plx+24, ply-32, 4, 8))
-    pygame.draw.rect(displayScreen, black, (plx, ply, 36, 40))
-    pygame.draw.rect(displayScreen, red, (plx+10, ply, 16, 40))
-    pygame.draw.polygon(displayScreen, black, ((plx,ply),(plx,ply+10),(plx-22,ply+20)))
-    pygame.draw.polygon(displayScreen, black, ((plx+36,ply),(plx+36,ply+10),(plx+54,ply+20)))
-    pygame.draw.rect(displayScreen, black, (plx+3, ply+40, 10, 30))
-    pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
-    #pxa[10, 20] = black
+    if charpos == 'Down':
+        pygame.draw.rect(displayScreen, tan, (plx+8, ply-10, 20, 10))
+        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
+        pygame.draw.rect(displayScreen, black, (plx+8, ply-32, 4, 8))
+        pygame.draw.rect(displayScreen, black, (plx+24, ply-32, 4, 8))
+        pygame.draw.rect(displayScreen, black, (plx, ply, 36, 40))
+        pygame.draw.rect(displayScreen, red, (plx+10, ply, 16, 40))
+        pygame.draw.polygon(displayScreen, black, ((plx,ply),(plx,ply+10),(plx-22,ply+20)))
+        pygame.draw.polygon(displayScreen, black, ((plx+36,ply),(plx+36,ply+10),(plx+54,ply+20)))
+        pygame.draw.rect(displayScreen, black, (plx+3, ply+40, 10, 30))
+        pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
+        
+    elif charpos == 'Left':
+        pygame.draw.rect(displayScreen, tan, (plx+12, ply-10, 13, 10))
+        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
+        pygame.draw.rect(displayScreen, black, (plx+4, ply-32, 4, 8))
+        pygame.draw.rect(displayScreen, black, (plx+10, ply, 18, 40))
+        pygame.draw.polygon(displayScreen, black, ((plx+10,ply),(plx+10,ply+10),(plx-22,ply+20)))
+        pygame.draw.rect(displayScreen, black, (plx+12, ply+40, 13, 30))
+        
+    elif charpos == 'Right':
+        pygame.draw.rect(displayScreen, tan, (plx+12, ply-10, 13, 10))
+        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
+        pygame.draw.rect(displayScreen, black, (plx+28, ply-32, 4, 8)) 
+        pygame.draw.rect(displayScreen, black, (plx+10, ply, 18, 40))
+        pygame.draw.polygon(displayScreen, black, ((plx+28,ply),(plx+28,ply+10),(plx+54,ply+20))) 
+        pygame.draw.rect(displayScreen, black, (plx+12, ply+40, 13, 30))
+
+    elif charpos == 'Up':
+        pygame.draw.rect(displayScreen, tan, (plx+8, ply-10, 20, 10))
+        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
+        pygame.draw.rect(displayScreen, black, (plx, ply, 36, 40))
+        pygame.draw.polygon(displayScreen, black, ((plx,ply),(plx,ply+10),(plx-22,ply+20)))
+        pygame.draw.polygon(displayScreen, black, ((plx+36,ply),(plx+36,ply+10),(plx+54,ply+20)))
+        pygame.draw.rect(displayScreen, black, (plx+3, ply+40, 10, 30))
+        pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
+
+    
     plx += xmov
     ply += ymov
         
@@ -177,46 +205,62 @@ def instructions():
 
 def starting_area():
     global xmov, ymov, ms
+    charpos = 'Down'
     game = True
     while game :
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit_game()
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LSHIFT:
+                    ms = basic_speed + basic_speed//2
+                    
                 if event.key == pygame.K_w:
+                    charpos = 'Up'
                     if ply-54 == 0:
                         ymov = 0
                     else:
                         ymov = -ms
                 elif event.key == pygame.K_a:
+                    charpos = 'Left'
                     if plx-20 == 0:
                         xmov = 0
                     else:
                         xmov = -ms
                 elif event.key == pygame.K_s:
+                    charpos = 'Down'
                     if ply+68 == 640:
                         ymov = 0
                     else:
                         ymov = ms
                 elif event.key == pygame.K_d:
+                    charpos = 'Right'
                     if plx+52 == 1200:
                         xmov = 0
                     else:
                         xmov = ms
+
                         
             if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LSHIFT:
+                    ms = basic_speed
+                    
                 if event.key == pygame.K_w or event.key == pygame.K_s:
                     ymov = 0
                 elif event.key == pygame.K_a or event.key == pygame.K_d:
                     xmov = 0
 
+
         displayScreen.fill(mint_green)
         pygame.draw.polygon(displayScreen, cardboard_brown, ((800, 100), (1200, 100), (1200, 200), (900, 200), (900, 640), (800, 640)))
-        character()
+        
+        character(charpos)
+        
         if ply-56 < 0 or ply+70 > display_height:
             ymov = 0
         if plx-22 < 0 or plx+54 > display_width:
             xmov = 0
+            
         pygame.display.update()
         clock.tick(120)
 
