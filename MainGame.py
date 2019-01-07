@@ -57,9 +57,9 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
             if button_action == 'Play':
                 menu = False
                 main_game()
-            elif button_action == 'Instructions':
+            elif button_action == 'Manual':
                 menu = False
-                instructions()
+                manual()
             elif button_action == 'Quit':
                 menu = False
                 quit_game()
@@ -130,9 +130,9 @@ def main_menu():
         displayText(text_font('microsofthimalaya', 35, True, False),
                     'P L A Y', black, display_width/2, 340)
 
-        create_button(red, bright_red, 'Instructions', 420, 370, 360, 30, 0)
+        create_button(red, bright_red, 'Manual', 420, 370, 360, 30, 0)
         displayText(text_font('microsofthimalaya', 35, True, False),
-                    'I N S T R U C T I O N S', black, display_width/2, 390)
+                    'M A N U A L', black, display_width/2, 390)
 
         create_button(red, bright_red, 'Quit', 420, 420, 360, 30, 0)
         displayText(text_font('microsofthimalaya', 35, True, False),
@@ -141,8 +141,8 @@ def main_menu():
         pygame.display.update()
         clock.tick(60)
 
-def instructions():    
-    instruction_menu = True
+def manual():    
+    manual_menu = True
     book_opening = True
     leftx = 500
     rightx = 720
@@ -152,7 +152,7 @@ def instructions():
     cover_x = 0
     cover_y = 0
     
-    while instruction_menu:
+    while manual_menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit_game()
@@ -177,6 +177,7 @@ def instructions():
                     pygame.draw.polygon(displayScreen, black, [(600, 22), (600, 618), (1098, 618), (1098, 22)], 1)
                     pygame.draw.polygon(displayScreen, midnight_blue, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)])
                     pygame.draw.polygon(displayScreen, black, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)], 1)
+
                     if cover_x == 1000:
                         cover_x += 0
                     else:
