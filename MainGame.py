@@ -38,11 +38,16 @@ def text_font(font_type, size, bold, italic):
     font = pygame.font.SysFont(font_type, size, bold, italic)
     return font
 
-def displayText(font, message, colour, xcoord, ycoord):
+def displayText(font, message, colour, position, xcoord, ycoord):
     text = font.render(message, True, colour)
     textRect = text.get_rect()
-    textRect.center = ((xcoord), (ycoord))
+    if position == 'Center':
+        textRect.center = ((xcoord), (ycoord))
+    elif position == 'Midleft':
+        textRect.midleft = ((xcoord), (ycoord))
+
     displayScreen.blit(text, textRect)
+
 
 def quit_game():
     pygame.quit()
@@ -124,19 +129,19 @@ def main_menu():
 
         displayScreen.fill(white)
         displayText(text_font('microsofthimalaya', 180, False, False),
-                    'The Survivor', red, display_width/2, display_height/3 - 40)
+                    'The Survivor', red, 'Center', display_width/2, display_height/3 - 40)
 
         create_button(red, bright_red, 'Play', 420, 320, 360, 30, 0)
         displayText(text_font('microsofthimalaya', 35, True, False),
-                    'P L A Y', black, display_width/2, 340)
+                    'P L A Y', black, 'Center', display_width/2, 340)
 
         create_button(red, bright_red, 'Manual', 420, 370, 360, 30, 0)
         displayText(text_font('microsofthimalaya', 35, True, False),
-                    'M A N U A L', black, display_width/2, 390)
+                    'M A N U A L', black, 'Center', display_width/2, 390)
 
         create_button(red, bright_red, 'Quit', 420, 420, 360, 30, 0)
         displayText(text_font('microsofthimalaya', 35, True, False),
-                    'Q U I T', black, display_width/2, 440)
+                    'Q U I T', black, 'Center', display_width/2, 440)
         
         pygame.display.update()
         clock.tick(60)
@@ -161,7 +166,8 @@ def manual():
 
         create_button(white, grey, 'Main Menu', 6, 6, 60, 41, 0)
         pygame.draw.polygon(displayScreen, light_brown, [(7, 27), (7, 26), (25, 7), (25, 20), (66, 20), (66, 6), (6, 6), (6, 47), (66, 47), (66, 20), (64, 20), (64, 34), (25, 34), (25, 46)])
-        displayText(text_font('comicsansms', 15, True, False), 'BACK', black, 35, 26)
+        displayText(text_font('arial', 15, True, False), 'BACK', black, 'Center', 35, 26)
+
         
         if book_opening == True:
             pygame.draw.polygon(displayScreen, black, [(leftx+shadow, upy+shadow), (leftx+shadow, downy+shadow), (rightx+shadow, downy+shadow), (rightx+shadow, upy+shadow)])
@@ -175,6 +181,16 @@ def manual():
                     shadow = 0
                     pygame.draw.polygon(displayScreen, white, [(600, 22), (600, 618), (1098, 618), (1098, 22)])
                     pygame.draw.polygon(displayScreen, black, [(600, 22), (600, 618), (1098, 618), (1098, 22)], 1)
+                    displayText(text_font('arial', 25, True, False), 'Instructions', black, 'Center', 849, 60)
+                    displayText(text_font('arial', 25, True, False), 'WASD = controls', black, 'Midleft', 620, 90)
+                    displayText(text_font('arial', 25, True, False), 'Space = attack/use item', black, 'Midleft', 620, 110)
+                    displayText(text_font('arial', 25, True, False), 'Shift = sprint', black, 'Midleft', 620, 130)
+                    displayText(text_font('arial', 25, True, False), 'Inventory = 1-5', black, 'Midleft', 620, 150)
+                    displayText(text_font('arial', 25, True, False), 'Enter = talk', black, 'Midleft', 620, 170)
+                    displayText(text_font('arial', 25, True, False), 'Goal', black, 'Center', 849, 210)
+
+                    
+                    
                     pygame.draw.polygon(displayScreen, midnight_blue, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)])
                     pygame.draw.polygon(displayScreen, black, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)], 1)
 
