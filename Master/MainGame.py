@@ -188,6 +188,14 @@ def manual():
                     displayText(text_font('arial', 25, True, False), 'Inventory = 1-5', black, 'Midleft', 620, 150)
                     displayText(text_font('arial', 25, True, False), 'Enter = talk', black, 'Midleft', 620, 170)
                     displayText(text_font('arial', 25, True, False), 'Goal', black, 'Center', 849, 210)
+                    displayText(text_font('arial', 25, True, False), '-Kill as many enemies as possible and earn', black, 'Midleft', 620, 255)
+                    displayText(text_font('arial', 25, True, False), 'rewards!', black, 'Midleft', 627, 274)
+                    displayText(text_font('arial', 25, True, False), '-Killing enemies will drop materials and', black, 'Midleft', 620, 302)
+                    displayText(text_font('arial', 25, True, False), 'use materials to upgrade yourself!', black, 'Midleft', 627, 324)
+                    displayText(text_font('arial', 25, True, False), '-The more you explore, the more you will find', black, 'Midleft', 620, 352)
+                    displayText(text_font('arial', 25, True, False), 'upgrades and side quest!', black, 'Midleft', 627, 374)
+                    displayText(text_font('arial', 25, True, False), '-To win the game, you will need to kill the boss', black, 'Midleft', 620, 402)
+                    displayText(text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 424)
 
                     
                     
@@ -217,7 +225,7 @@ def manual():
                 downy += 2
 
         pygame.display.update()
-        clock.tick(120)
+        clock.tick(10000)
 
 
 def starting_area():
