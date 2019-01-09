@@ -11,6 +11,7 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 red = (230, 0, 0)
 bright_red = (255, 0, 0)
+green = (0, 255, 0)
 light_brown = (139, 69, 19)
 midnight_blue = (25, 25, 112)
 grey = (128, 128, 128)
@@ -19,6 +20,7 @@ cardboard_brown = (165, 136, 85)
 mint_green = (152, 255, 152)
 tan = (196,144,124)
 peach = (255,224,189)
+brown = (92, 64, 51)
 
 #player
 plx = 500
@@ -117,7 +119,19 @@ def character(charpos):
     
     plx += xmov
     ply += ymov
-        
+
+def tree(xcoord, ycoord):
+    pygame.draw.rect(displayScreen, brown, (xcoord,ycoord, 40, 100))
+    pygame.draw.circle(displayScreen, green, (xcoord+35,ycoord-60), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord+5,ycoord-60), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord+65,ycoord-30), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord+20,ycoord-30), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord+42,ycoord-30), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord-25,ycoord-30), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord+35,ycoord), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord+5,ycoord), 30)
+    pygame.draw.circle(displayScreen, green, (xcoord+35,ycoord-60), 30)
+    
         
 def main_menu():
     menu = True
@@ -276,8 +290,13 @@ def starting_area():
                     xmov = 0
 
 
+        
         displayScreen.fill(mint_green)
         pygame.draw.polygon(displayScreen, cardboard_brown, ((800, 100), (1200, 100), (1200, 200), (900, 200), (900, 640), (800, 640)))
+        
+        tree(265, 400)
+        tree(100, 230)
+        tree(700, 100)
         
         character(charpos)
         
