@@ -342,6 +342,25 @@ def starting_area():
         pygame.draw.rect(displayScreen, grey, (0, 230, 130, 50))
         pygame.draw.rect(displayScreen, grey, (0, 80, 130, 50))
         pygame.draw.rect(displayScreen, grey, (130, 80, 3, 200))
+
+        pygame.draw.rect(displayScreen, cardboard_brown, (0, 400, 130, 100))
+        npc(50, 470, 'Right', black, peach, tan, red, red, black)
+        pygame.draw.rect(displayScreen, grey, (0, 500, 130, 50))
+        pygame.draw.rect(displayScreen, grey, (0, 350, 130, 50))
+        pygame.draw.rect(displayScreen, grey, (130, 350, 3, 200))
+
+        pygame.draw.rect(displayScreen, cardboard_brown, (1070, 130, 130, 100))
+        npc(1150, 200, 'Left', black, peach, tan, red, red, black)
+        pygame.draw.rect(displayScreen, grey, (1070, 230, 130, 50))
+        pygame.draw.rect(displayScreen, grey, (1070, 80, 130, 50))
+        pygame.draw.rect(displayScreen, grey, (1070, 80, 3, 200))
+
+        pygame.draw.rect(displayScreen, cardboard_brown, (1070, 400, 130, 100))
+        npc(1150, 470, 'Left', black, peach, tan, red, red, black)
+        pygame.draw.rect(displayScreen, grey, (1070, 500, 130, 50))
+        pygame.draw.rect(displayScreen, grey, (1070, 350, 130, 50))
+        pygame.draw.rect(displayScreen, grey, (1070, 350, 3, 200))
+
         
         character(charpos)
         
