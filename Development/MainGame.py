@@ -361,6 +361,8 @@ def starting_area():
         pygame.draw.rect(displayScreen, grey, (1070, 350, 130, 50))
         pygame.draw.rect(displayScreen, grey, (1070, 350, 3, 200))
 
+        tree(300, 550)
+        tree(850, 100)
         
         character(charpos)
         
