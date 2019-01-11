@@ -34,6 +34,7 @@ ms = basic_speed
 displayScreen = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('The Survivor')
 clock = pygame.time.Clock()
+instruction_display = False
 keys = pygame.key.get_pressed()
 
 
@@ -41,20 +42,34 @@ def text_font(font_type, size, bold, italic):
     font = pygame.font.SysFont(font_type, size, bold, italic)
     return font
 
-def displayText(font, message, colour, position, xcoord, ycoord):
-    text = font.render(message, True, colour)
-    textRect = text.get_rect()
-    if position == 'Center':
-        textRect.center = ((xcoord), (ycoord))
-    elif position == 'Midleft':
-        textRect.midleft = ((xcoord), (ycoord))
+def displayText(animation, font, message, colour, position, xcoord, ycoord):
+    if animation == True:
+        text = ''
+        for i in range(len(message)):
+            text += message[i]
+            textSurface = font.render(text, True, colour)
+            textRect = textSurface.get_rect()
+            textRect.midleft = (xcoord, ycoord)
+            displayScreen.blit(textSurface, textRect)
+            pygame.display.update()
+            pygame.time.wait(5)
+        animation = False
+            
+    elif animation == False:
+        text = font.render(message, True, colour)
+        textRect = text.get_rect()
+        if position == 'Center':
+            textRect.center = (xcoord, ycoord)
+        elif position == 'Midleft':
+            textRect.midleft = (xcoord, ycoord)
+        displayScreen.blit(text, textRect)
 
-    displayScreen.blit(text, textRect)
 
 
 def quit_game():
     pygame.quit()
     quit()
+
 
 def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlength, rectwidth, thickness):
     mouse_position = pygame.mouse.get_pos()
@@ -76,6 +91,29 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
                 main_menu()
     else:
         pygame.draw.rect(displayScreen, colour, (xcoord, ycoord, rectlength, rectwidth), thickness)
+
+
+def instructions(animation):
+    global instruction_display
+    if instruction_display == True:
+        animation = False
+    
+    displayText(animation, text_font('arial', 25, True, False), 'Instructions', black, 'Midleft', 785, 70)
+    displayText(animation, text_font('arial', 25, True, False), 'WASD = controls', black, 'Midleft', 620, 100)
+    displayText(animation, text_font('arial', 25, True, False), 'Space = attack/use item', black, 'Midleft', 620, 120)
+    displayText(animation, text_font('arial', 25, True, False), 'Shift = sprint', black, 'Midleft', 620, 140)
+    displayText(animation, text_font('arial', 25, True, False), 'Inventory = 1-5', black, 'Midleft', 620, 160)
+    displayText(animation, text_font('arial', 25, True, False), 'Enter = talk', black, 'Midleft', 620, 180)
+    displayText(animation, text_font('arial', 25, True, False), 'Goal', black, 'Midleft', 815, 220)
+    displayText(animation, text_font('arial', 25, True, False), '-Kill as many enemies as possible and earn', black, 'Midleft', 620, 265)
+    displayText(animation, text_font('arial', 25, True, False), 'rewards!', black, 'Midleft', 627, 284)
+    displayText(animation, text_font('arial', 25, True, False), '-Killing enemies will drop materials and', black, 'Midleft', 620, 312)
+    displayText(animation, text_font('arial', 25, True, False), 'use materials to upgrade yourself!', black, 'Midleft', 627, 334)
+    displayText(animation, text_font('arial', 25, True, False), '-The more you explore, the more you will find', black, 'Midleft', 620, 362)
+    displayText(animation, text_font('arial', 25, True, False), 'upgrades and side quest!', black, 'Midleft', 627, 384)
+    displayText(animation, text_font('arial', 25, True, False), '-To win the game, you will need to kill the boss', black, 'Midleft', 620, 412)
+    displayText(animation, text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 434)
+
 
 
 def character(charpos):
@@ -116,44 +154,6 @@ def character(charpos):
         pygame.draw.polygon(displayScreen, black, ((plx+36,ply),(plx+36,ply+10),(plx+54,ply+20)))
         pygame.draw.rect(displayScreen, black, (plx+3, ply+40, 10, 30))
         pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
-
-def player_movement():
-    global plx, ply
-    xmov = 0
-    ymov = 0
-    ms = 1
-
-    if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
-        ms = 2
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        charpos = 'Up'
-        if ply-54 <= 0:
-            ymov = 0
-        else:
-            ymov = -1
-    if keys[pygame.K_a]:
-        charpos = 'Left'
-        if plx-20 <= 0:
-            xmov = 0
-        else:
-            xmov = -1
-    if keys[pygame.K_s]:
-        charpos = 'Down'
-        if ply+68 >= 640:
-            ymov = 0
-        else:
-            ymov = 1
-    if keys[pygame.K_d]:
-        charpos = 'Right'
-        if plx+52 >= 1200:
-            xmov = 0
-        else:
-            xmov = 1
-
-    plx += xmov * ms
-    ply += ymov * ms
     
 
 def tree(xcoord, ycoord):
@@ -178,27 +178,29 @@ def main_menu():
                 quit()
 
         displayScreen.fill(white)
-        displayText(text_font('microsofthimalaya', 180, False, False),
+        displayText(False, text_font('microsofthimalaya', 180, False, False),
                     'The Survivor', red, 'Center', display_width/2, display_height/3 - 40)
 
         create_button(red, bright_red, 'Play', 420, 320, 360, 30, 0)
-        displayText(text_font('microsofthimalaya', 35, True, False),
+        displayText(False, text_font('microsofthimalaya', 35, True, False),
                     'P L A Y', black, 'Center', display_width/2, 340)
 
         create_button(red, bright_red, 'Manual', 420, 370, 360, 30, 0)
-        displayText(text_font('microsofthimalaya', 35, True, False),
+        displayText(False, text_font('microsofthimalaya', 35, True, False),
                     'M A N U A L', black, 'Center', display_width/2, 390)
 
         create_button(red, bright_red, 'Quit', 420, 420, 360, 30, 0)
-        displayText(text_font('microsofthimalaya', 35, True, False),
+        displayText(False, text_font('microsofthimalaya', 35, True, False),
                     'Q U I T', black, 'Center', display_width/2, 440)
         
         pygame.display.update()
         clock.tick(60)
 
-def manual():    
+def manual():
+    global instruction_display
     manual_menu = True
     book_opening = True
+    instruction_display = False
     leftx = 500
     rightx = 720
     upy = 160
@@ -216,7 +218,7 @@ def manual():
 
         create_button(white, grey, 'Main Menu', 6, 6, 60, 41, 0)
         pygame.draw.polygon(displayScreen, light_brown, [(7, 27), (7, 26), (25, 7), (25, 20), (66, 20), (66, 6), (6, 6), (6, 47), (66, 47), (66, 20), (64, 20), (64, 34), (25, 34), (25, 46)])
-        displayText(text_font('arial', 15, True, False), 'BACK', black, 'Center', 35, 26)
+        displayText(False, text_font('arial', 15, True, False), 'BACK', black, 'Center', 35, 26)
 
         
         if book_opening == True:
@@ -236,24 +238,9 @@ def manual():
                     pygame.draw.polygon(displayScreen, black, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)], 1)
 
                     if cover_x == 1000:
-                        cover_x += 0
-                        displayText(text_font('arial', 25, True, False), 'Instructions', black, 'Center', 849, 70)
-                        displayText(text_font('arial', 25, True, False), 'WASD = controls', black, 'Midleft', 620, 100)
-                        displayText(text_font('arial', 25, True, False), 'Space = attack/use item', black, 'Midleft', 620, 120)
-                        displayText(text_font('arial', 25, True, False), 'Shift = sprint', black, 'Midleft', 620, 140)
-                        displayText(text_font('arial', 25, True, False), 'Inventory = 1-5', black, 'Midleft', 620, 160)
-                        displayText(text_font('arial', 25, True, False), 'Enter = talk', black, 'Midleft', 620, 180)
-                        displayText(text_font('arial', 25, True, False), 'Goal', black, 'Center', 849, 220)
-                        displayText(text_font('arial', 25, True, False), '-Kill as many enemies as possible and earn', black, 'Midleft', 620, 265)
-                        displayText(text_font('arial', 25, True, False), 'rewards!', black, 'Midleft', 627, 284)
-                        displayText(text_font('arial', 25, True, False), '-Killing enemies will drop materials and', black, 'Midleft', 620, 312)
-                        displayText(text_font('arial', 25, True, False), 'use materials to upgrade yourself!', black, 'Midleft', 627, 334)
-                        displayText(text_font('arial', 25, True, False), '-The more you explore, the more you will find', black, 'Midleft', 620, 362)
-                        displayText(text_font('arial', 25, True, False), 'upgrades and side quest!', black, 'Midleft', 627, 384)
-                        displayText(text_font('arial', 25, True, False), '-To win the game, you will need to kill the boss', black, 'Midleft', 620, 412)
-                        displayText(text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 434)
-                    
-
+                        cover_x += 0                    
+                        instructions(True)
+                        instruction_display = True
                     else:
                         cover_x += 8
                         
@@ -280,7 +267,7 @@ def manual():
 
 
 def starting_area():
-    global xmov, ymov, ms
+    global plx, ply, mov, ymov, ms
     charpos = 'Down'
     game = True
     while game :
@@ -288,7 +275,42 @@ def starting_area():
             if event.type == pygame.QUIT:
                 quit_game()
 
-        player_movement()
+        xmov = 0
+        ymov = 0
+        ms = 1
+
+        if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
+            ms = 2
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            charpos = 'Up'
+            if ply-54 <= 0:
+                ymov = 0
+            else:
+                ymov = -1
+        if keys[pygame.K_a]:
+            charpos = 'Left'
+            if plx-20 <= 0:
+                xmov = 0
+            else:
+                xmov = -1
+        if keys[pygame.K_s]:
+            charpos = 'Down'
+            if ply+68 >= 640:
+                ymov = 0
+            else:
+                ymov = 1
+        if keys[pygame.K_d]:
+            charpos = 'Right'
+            if plx+52 >= 1200:
+                xmov = 0
+            else:
+                xmov = 1
+
+        plx += xmov * ms
+        ply += ymov * ms
+
 
         displayScreen.fill(mint_green)
         pygame.draw.polygon(displayScreen, cardboard_brown, ((800, 100), (1200, 100), (1200, 200), (900, 200), (900, 640), (800, 640)))
