@@ -22,7 +22,7 @@ tan = (196,144,124)
 peach = (255,224,189)
 brown = (92, 64, 51)
 
-#player
+#player coordinates
 plx = 500
 ply = 250
 xmov = 0
@@ -34,6 +34,7 @@ ms = basic_speed
 displayScreen = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('The Survivor')
 clock = pygame.time.Clock()
+keys = pygame.key.get_pressed()
 
 
 def text_font(font_type, size, bold, italic):
@@ -78,7 +79,7 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
 
 
 def character(charpos):
-    global plx, ply, xmov, ymov
+    global plx, ply
     if charpos == 'Down':
         pygame.draw.rect(displayScreen, tan, (plx+8, ply-10, 20, 10))
         pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
@@ -116,9 +117,44 @@ def character(charpos):
         pygame.draw.rect(displayScreen, black, (plx+3, ply+40, 10, 30))
         pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
 
+def player_movement():
+    global plx, ply
+    xmov = 0
+    ymov = 0
+    ms = 1
+
+    if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
+        ms = 2
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w]:
+        charpos = 'Up'
+        if ply-54 <= 0:
+            ymov = 0
+        else:
+            ymov = -1
+    if keys[pygame.K_a]:
+        charpos = 'Left'
+        if plx-20 <= 0:
+            xmov = 0
+        else:
+            xmov = -1
+    if keys[pygame.K_s]:
+        charpos = 'Down'
+        if ply+68 >= 640:
+            ymov = 0
+        else:
+            ymov = 1
+    if keys[pygame.K_d]:
+        charpos = 'Right'
+        if plx+52 >= 1200:
+            xmov = 0
+        else:
+            xmov = 1
+
+    plx += xmov * ms
+    ply += ymov * ms
     
-    plx += xmov
-    ply += ymov
 
 def tree(xcoord, ycoord):
     pygame.draw.rect(displayScreen, brown, (xcoord,ycoord, 40, 100))
@@ -195,32 +231,32 @@ def manual():
                     shadow = 0
                     pygame.draw.polygon(displayScreen, white, [(600, 22), (600, 618), (1098, 618), (1098, 22)])
                     pygame.draw.polygon(displayScreen, black, [(600, 22), (600, 618), (1098, 618), (1098, 22)], 1)
-                    displayText(text_font('arial', 25, True, False), 'Instructions', black, 'Center', 849, 70)
-                    displayText(text_font('arial', 25, True, False), 'WASD = controls', black, 'Midleft', 620, 100)
-                    displayText(text_font('arial', 25, True, False), 'Space = attack/use item', black, 'Midleft', 620, 120)
-                    displayText(text_font('arial', 25, True, False), 'Shift = sprint', black, 'Midleft', 620, 140)
-                    displayText(text_font('arial', 25, True, False), 'Inventory = 1-5', black, 'Midleft', 620, 160)
-                    displayText(text_font('arial', 25, True, False), 'Enter = talk', black, 'Midleft', 620, 180)
-                    displayText(text_font('arial', 25, True, False), 'Goal', black, 'Center', 849, 220)
-                    displayText(text_font('arial', 25, True, False), '-Kill as many enemies as possible and earn', black, 'Midleft', 620, 265)
-                    displayText(text_font('arial', 25, True, False), 'rewards!', black, 'Midleft', 627, 284)
-                    displayText(text_font('arial', 25, True, False), '-Killing enemies will drop materials and', black, 'Midleft', 620, 312)
-                    displayText(text_font('arial', 25, True, False), 'use materials to upgrade yourself!', black, 'Midleft', 627, 334)
-                    displayText(text_font('arial', 25, True, False), '-The more you explore, the more you will find', black, 'Midleft', 620, 362)
-                    displayText(text_font('arial', 25, True, False), 'upgrades and side quest!', black, 'Midleft', 627, 384)
-                    displayText(text_font('arial', 25, True, False), '-To win the game, you will need to kill the boss', black, 'Midleft', 620, 412)
-                    displayText(text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 434)
-
-                    
                     
                     pygame.draw.polygon(displayScreen, midnight_blue, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)])
                     pygame.draw.polygon(displayScreen, black, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)], 1)
 
                     if cover_x == 1000:
                         cover_x += 0
+                        displayText(text_font('arial', 25, True, False), 'Instructions', black, 'Center', 849, 70)
+                        displayText(text_font('arial', 25, True, False), 'WASD = controls', black, 'Midleft', 620, 100)
+                        displayText(text_font('arial', 25, True, False), 'Space = attack/use item', black, 'Midleft', 620, 120)
+                        displayText(text_font('arial', 25, True, False), 'Shift = sprint', black, 'Midleft', 620, 140)
+                        displayText(text_font('arial', 25, True, False), 'Inventory = 1-5', black, 'Midleft', 620, 160)
+                        displayText(text_font('arial', 25, True, False), 'Enter = talk', black, 'Midleft', 620, 180)
+                        displayText(text_font('arial', 25, True, False), 'Goal', black, 'Center', 849, 220)
+                        displayText(text_font('arial', 25, True, False), '-Kill as many enemies as possible and earn', black, 'Midleft', 620, 265)
+                        displayText(text_font('arial', 25, True, False), 'rewards!', black, 'Midleft', 627, 284)
+                        displayText(text_font('arial', 25, True, False), '-Killing enemies will drop materials and', black, 'Midleft', 620, 312)
+                        displayText(text_font('arial', 25, True, False), 'use materials to upgrade yourself!', black, 'Midleft', 627, 334)
+                        displayText(text_font('arial', 25, True, False), '-The more you explore, the more you will find', black, 'Midleft', 620, 362)
+                        displayText(text_font('arial', 25, True, False), 'upgrades and side quest!', black, 'Midleft', 627, 384)
+                        displayText(text_font('arial', 25, True, False), '-To win the game, you will need to kill the boss', black, 'Midleft', 620, 412)
+                        displayText(text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 434)
+                    
+
                     else:
                         cover_x += 8
-
+                        
                     if cover_x < 490:
                         cover_y += 2
                     elif cover_y == 0:
@@ -229,6 +265,7 @@ def manual():
                         cover_y += 0
                     elif cover_x > 510:
                         cover_y += -2
+                    
                 else:
                     leftx += 2
                     rightx += 2
@@ -239,7 +276,7 @@ def manual():
                 downy += 2
 
         pygame.display.update()
-        clock.tick(120)
+        
 
 
 def starting_area():
@@ -250,47 +287,9 @@ def starting_area():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit_game()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LSHIFT:
-                    ms = basic_speed + basic_speed//2
-                    
-                if event.key == pygame.K_w:
-                    charpos = 'Up'
-                    if ply-54 == 0:
-                        ymov = 0
-                    else:
-                        ymov = -ms
-                elif event.key == pygame.K_a:
-                    charpos = 'Left'
-                    if plx-20 == 0:
-                        xmov = 0
-                    else:
-                        xmov = -ms
-                elif event.key == pygame.K_s:
-                    charpos = 'Down'
-                    if ply+68 == 640:
-                        ymov = 0
-                    else:
-                        ymov = ms
-                elif event.key == pygame.K_d:
-                    charpos = 'Right'
-                    if plx+52 == 1200:
-                        xmov = 0
-                    else:
-                        xmov = ms
 
-                        
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LSHIFT:
-                    ms = basic_speed
-                    
-                if event.key == pygame.K_w or event.key == pygame.K_s:
-                    ymov = 0
-                elif event.key == pygame.K_a or event.key == pygame.K_d:
-                    xmov = 0
+        player_movement()
 
-
-        
         displayScreen.fill(mint_green)
         pygame.draw.polygon(displayScreen, cardboard_brown, ((800, 100), (1200, 100), (1200, 200), (900, 200), (900, 640), (800, 640)))
         
@@ -299,14 +298,8 @@ def starting_area():
         tree(700, 100)
         
         character(charpos)
-        
-        if ply-56 < 0 or ply+70 > display_height:
-            ymov = 0
-        if plx-22 < 0 or plx+54 > display_width:
-            xmov = 0
             
         pygame.display.update()
-        clock.tick(120)
 
         
 def main_game():
