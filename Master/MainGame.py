@@ -35,7 +35,6 @@ displayScreen = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('The Survivor')
 clock = pygame.time.Clock()
 instruction_display = False
-keys = pygame.key.get_pressed()
 
 
 def text_font(font_type, size, bold, italic):
@@ -79,7 +78,7 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
         if mouse_click[0] == 1:
             if button_action == 'Play':
                 menu = False
-                main_game()
+                starting_area()
             elif button_action == 'Manual':
                 menu = False
                 manual()
@@ -87,7 +86,7 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
                 menu = False
                 quit_game()
             elif button_action == 'Main Menu':
-                instruction_menu = False
+                manual_menu = False
                 main_menu()
     else:
         pygame.draw.rect(displayScreen, colour, (xcoord, ycoord, rectlength, rectwidth), thickness)
@@ -156,22 +155,18 @@ def character(charpos):
         pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
     
 
-def tree(xcoord, ycoord):
-    pygame.draw.rect(displayScreen, brown, (xcoord,ycoord, 40, 100))
-    pygame.draw.circle(displayScreen, green, (xcoord+35,ycoord-60), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord+5,ycoord-60), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord+65,ycoord-30), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord+20,ycoord-30), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord+42,ycoord-30), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord-25,ycoord-30), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord+35,ycoord), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord+5,ycoord), 30)
-    pygame.draw.circle(displayScreen, green, (xcoord+35,ycoord-60), 30)
+def tree(tree_coordinates):
+    leaves = [(35, 60), (5, 60), (65, 30), (20, 30), (-25, 30), (35, 0), (5, 0)]
+    for i in range(len(tree_coordinates)):
+        pygame.draw.rect(displayScreen, brown, (tree_coordinates[i][0], tree_coordinates[i][1], 40, 100))
+        for leaf in range(len(leaves)):
+            pygame.draw.circle(displayScreen, green, (tree_coordinates[i][0]+leaves[leaf][0],tree_coordinates[i][1]-leaves[leaf][1]), 30)
+
     
         
 def main_menu():
     menu = True
-    while menu == True:
+    while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -194,7 +189,7 @@ def main_menu():
                     'Q U I T', black, 'Center', display_width/2, 440)
         
         pygame.display.update()
-        clock.tick(60)
+
 
 def manual():
     global instruction_display
@@ -269,6 +264,7 @@ def manual():
 def starting_area():
     global plx, ply, mov, ymov, ms
     charpos = 'Down'
+    tree_coordinates = [(265, 400), (100, 230), (700, 100)]
     game = True
     while game :
         for event in pygame.event.get():
@@ -277,12 +273,13 @@ def starting_area():
 
         xmov = 0
         ymov = 0
-        ms = 1
+        ms = 2
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
-            ms = 2
+            ms = 3
 
         keys = pygame.key.get_pressed()
+        
         if keys[pygame.K_w]:
             charpos = 'Up'
             if ply-54 <= 0:
@@ -314,17 +311,14 @@ def starting_area():
 
         displayScreen.fill(mint_green)
         pygame.draw.polygon(displayScreen, cardboard_brown, ((800, 100), (1200, 100), (1200, 200), (900, 200), (900, 640), (800, 640)))
-        
-        tree(265, 400)
-        tree(100, 230)
-        tree(700, 100)
+
+        tree(tree_coordinates)
         
         character(charpos)
             
         pygame.display.update()
+        clock.tick(120)
 
-        
-def main_game():
-    starting_area()
+
 
 main_menu()
