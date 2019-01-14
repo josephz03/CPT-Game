@@ -155,7 +155,7 @@ def pause(loop):
 
 def instructions(animation):
     global instruction_display
-    if instruction_display == True:
+    if instruction_display:
         animation = False
         
     displayText(animation, text_font('arial', 25, True, False), 'Instructions', black, 'Midleft', 785, 70)
@@ -433,7 +433,7 @@ def start_area():
         pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 640))
         pygame.draw.rect(displayScreen, cardboard_brown, (700, 110, 500, 100))
 
-        #use class
+
         if ply-30 <= tree_coords[0][1] and plx in range(tree_coords[0][0]-110, tree_coords[0][0]+116):
             character(charpos)
             tree(tree_coords)
@@ -495,7 +495,7 @@ def fight_area_1():
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
                 charpos = 'Down'
-                if ply+68 >= 640 and plx not in range(596, 669):
+                if ply+68 >= 640 and plx not in range(546, 619):
                     ymov = 0
                 elif ply >= 130 and plx+52 > 1200:
                     ymov = 0
@@ -512,7 +512,7 @@ def fight_area_1():
                 charpos = 'Left'
                 if plx-20 <= 0:
                     xmov = 0
-                elif plx <= 596 and ply < 56:
+                elif plx <= 596 and ply < 56 or plx <= 546 and ply+68 > 640:
                     xmov = 0
                 else:
                     xmov = -1
@@ -522,7 +522,7 @@ def fight_area_1():
                 charpos = 'Right'
                 if plx+52 >= 1200:
                     xmov = 0
-                elif plx >= 668 and ply < 56:
+                elif plx >= 668 and ply < 56 or plx >= 618 and ply+68 > 640:
                     xmov = 0
                 else:
                     xmov = 1
@@ -531,9 +531,11 @@ def fight_area_1():
         ply += ymov * ms
 
         displayScreen.fill(mint_green)
-        pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 640))
+        pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 300))
         pygame.draw.rect(displayScreen, cardboard_brown, (700, 200, 500, 100))
-        
+        pygame.draw.polygon(displayScreen, cardboard_brown, [(600, 300), (700, 300), (650, 400), (550, 400)])
+        pygame.draw.rect(displayScreen, cardboard_brown, (550, 400, 100, 240))
+                
         pygame.draw.polygon(displayScreen, cardboard_brown,[(70,100), (50,160), (300,260), (320,200)])
         
         tree(tree_coords)
@@ -574,13 +576,14 @@ def town():
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
                 charpos = 'Up'
-                if ply-58 <= 0 and plx not in range(596, 669):
+                if ply-58 <= 0 and plx not in range(496, 669):
                     ymov = 0
                 else:
                     ymov = -1
 
                 if ply <= 0:
                     area1 = False
+                    plx = 580
                     ply = 640
                     fight_area_1()
                     
@@ -597,7 +600,7 @@ def town():
                 charpos = 'Left'
                 if plx-20 <= 0:
                     xmov = 0
-                elif plx <= 596 and ply < 56:
+                elif plx <= 496 and ply < 56:
                     xmov = 0
                 else:
                     xmov = -1
@@ -617,6 +620,7 @@ def town():
 
         displayScreen.fill(mint_green)
         pygame.draw.rect(displayScreen, grey, (500, 0, 200, 640))
+        
         pygame.draw.rect(displayScreen, cardboard_brown, (0, 130, 130, 100))
         npc(50, 200, 'Right', black, peach, tan, red, red, black)
         pygame.draw.rect(displayScreen, grey, (0, 230, 130, 50))
