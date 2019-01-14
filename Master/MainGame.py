@@ -384,14 +384,14 @@ def start_area():
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
             
-        if keys[pygame.K_w]:
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
                 charpos = 'Up'
                 if ply-58 <= 0:
                     ymov = 0
                 else:
                     ymov = -1                  
-        if keys[pygame.K_s]:
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
                 charpos = 'Down'
                 if ply+68 >= 640 and plx not in range(596, 669):
@@ -406,7 +406,7 @@ def start_area():
                 ply = 40
                 fight_area_1()
 
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             if not paused:
                 charpos = 'Left'
                 if plx-20 <= 0:
@@ -416,7 +416,7 @@ def start_area():
                 else:
                     xmov = -1
                 
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if not paused:
                 charpos = 'Right'
                 if plx+52 >= 1200 and ply > 130:
@@ -479,7 +479,7 @@ def fight_area_1():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
-        if keys[pygame.K_w]:
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
                 charpos = 'Up'
                 if ply-58 <= 0 and plx not in range(596, 669):
@@ -492,7 +492,7 @@ def fight_area_1():
                     ply = 640
                     start_area()
                     
-        if keys[pygame.K_s]:
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
                 charpos = 'Down'
                 if ply+68 >= 640 and plx not in range(596, 669):
@@ -507,7 +507,7 @@ def fight_area_1():
                 ply = 40
                 town()
 
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             if not paused:
                 charpos = 'Left'
                 if plx-20 <= 0:
@@ -517,7 +517,7 @@ def fight_area_1():
                 else:
                     xmov = -1
 
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if not paused:
                 charpos = 'Right'
                 if plx+52 >= 1200:
@@ -571,7 +571,7 @@ def town():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
-        if keys[pygame.K_w]:
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
                 charpos = 'Up'
                 if ply-58 <= 0 and plx not in range(596, 669):
@@ -584,7 +584,7 @@ def town():
                     ply = 640
                     fight_area_1()
                     
-        if keys[pygame.K_s]:
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
                 charpos = 'Down'
                 if ply+68 >= 640:
@@ -592,7 +592,7 @@ def town():
                 else:
                     ymov = 1
 
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             if not paused:
                 charpos = 'Left'
                 if plx-20 <= 0:
@@ -602,7 +602,7 @@ def town():
                 else:
                     xmov = -1
 
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if not paused:
                 charpos = 'Right'
                 if plx+52 >= 1200:
