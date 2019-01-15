@@ -396,7 +396,7 @@ def start_area():
                 charpos = 'Down'
                 if ply+68 >= 640 and plx not in range(596, 669):
                     ymov = 0
-                elif ply >= 130 and plx+52 > 1200:
+                elif ply >= 138 and plx+52 > 1200:
                     ymov = 0
                 else:
                     ymov = 1
@@ -419,18 +419,23 @@ def start_area():
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if not paused:
                 charpos = 'Right'
-                if plx+52 >= 1200 and ply > 130:
+                if plx+52 >= 1200 and ply > 140:
                     xmov = 0
                 elif plx >= 668 and ply+68 > 640:
                     xmov = 0                  
                 else:
                     xmov = 1
 
+                if plx >= 1225:
+                    starting_area = False
+                    plx = 0
+                    fight_area_3()
+
         plx += xmov * ms
         ply += ymov * ms
 
         displayScreen.fill(mint_green)
-        pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 640))
+        pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
         pygame.draw.rect(displayScreen, cardboard_brown, (700, 110, 500, 100))
 
 
@@ -484,6 +489,8 @@ def fight_area_1():
                 charpos = 'Up'
                 if ply-58 <= 0 and plx not in range(596, 669):
                     ymov = 0
+                elif plx+52 >= 1200 and ply < 136:
+                    ymov = 0
                 else:
                     ymov = -1
 
@@ -497,13 +504,13 @@ def fight_area_1():
                 charpos = 'Down'
                 if ply+68 >= 640 and plx not in range(546, 619):
                     ymov = 0
-                elif ply >= 130 and plx+52 > 1200:
+                elif plx+52 >= 1200 and ply > 226:
                     ymov = 0
                 else:
                     ymov = 1
 
             if ply >= 675:
-                starting_area = False
+                area1 = False
                 ply = 40
                 town()
 
@@ -520,12 +527,17 @@ def fight_area_1():
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if not paused:
                 charpos = 'Right'
-                if plx+52 >= 1200:
+                if plx+52 >= 1200 and ply not in range(132, 232):
                     xmov = 0
                 elif plx >= 668 and ply < 56 or plx >= 618 and ply+68 > 640:
                     xmov = 0
                 else:
                     xmov = 1
+
+                if plx >= 1225:
+                    area1 = False
+                    plx = 0
+                    fight_area_2()
 
         plx += xmov * ms
         ply += ymov * ms
@@ -533,9 +545,9 @@ def fight_area_1():
         displayScreen.fill(mint_green)
         pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 300))
         pygame.draw.rect(displayScreen, cardboard_brown, (700, 200, 500, 100))
-        pygame.draw.polygon(displayScreen, cardboard_brown, [(600, 300), (700, 300), (650, 400), (550, 400)])
+        pygame.draw.rect(displayScreen, cardboard_brown, (550, 300, 150, 100))
         pygame.draw.rect(displayScreen, cardboard_brown, (550, 400, 100, 240))
-                
+       
         pygame.draw.polygon(displayScreen, cardboard_brown,[(70,100), (50,160), (300,260), (320,200)])
         
         tree(tree_coords)
@@ -549,6 +561,197 @@ def fight_area_1():
         clock.tick(60)
 
 
+def fight_area_2():
+    global plx, ply, paused, current_health
+    charpos = 'Down'
+    tree_coords = [(1000, 450)]
+    area2 = True
+    
+    while area2:
+        xmov = 0
+        ymov = 0
+        ms = 3
+        damaged = 0
+        keys = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit_game()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if paused:
+                        paused = False
+                    else:
+                        paused = True
+
+        if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
+            ms = 5
+            
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            if not paused:
+                charpos = 'Up'
+                if ply-58 <= 0 and plx not in range(596, 669):
+                    ymov = 0
+                elif plx <= 0 and ply < 136:
+                    ymov = 0
+                else:
+                    ymov = -1
+
+                if ply <= 0:
+                    area2 = False
+                    ply = 640
+                    fight_area_3()
+                    
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            if not paused:
+                charpos = 'Down'
+                if ply+68 >= 640 and plx not in range(596, 669):
+                    ymov = 0
+                elif plx <= 0 and ply > 226:
+                    ymov = 0
+                else:
+                    ymov = 1
+
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            if not paused:
+                charpos = 'Left'
+                if plx-20 <= 0 and ply not in range(132, 232):
+                    xmov = 0
+                elif plx <= 596 and ply < 56 or plx <= 596 and ply+68 > 640:
+                    xmov = 0
+                else:
+                    xmov = -1
+
+                if plx+20 <= 0:
+                    area2 = False
+                    plx = 1220
+                    fight_area_1()
+
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            if not paused:
+                charpos = 'Right'
+                if plx+52 >= 1200:
+                    xmov = 0
+                elif plx >= 668 and ply < 56 or plx >= 668 and ply+68 > 640:
+                    xmov = 0
+                else:
+                    xmov = 1
+
+
+        plx += xmov * ms
+        ply += ymov * ms
+
+        displayScreen.fill(mint_green)
+        pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 640))
+        pygame.draw.rect(displayScreen, cardboard_brown, (0, 200, 600, 100))
+        
+        pygame.draw.polygon(displayScreen, cardboard_brown,[(870,100), (850,160), (1100,260), (1120,200)])
+        pygame.draw.polygon(displayScreen, cardboard_brown,[(70,500), (50,560), (300,560), (320,500)])
+        
+        tree(tree_coords)
+        
+        character(charpos)
+        current_health -= damaged
+        health_bar()
+        
+        pause(area2)  
+        pygame.display.update()
+        clock.tick(60)
+
+    
+def fight_area_3():
+    global plx, ply, paused, current_health
+    charpos = 'Down'
+    tree_coords = [(1000, 450)]
+    area3 = True
+    
+    while area3:
+        xmov = 0
+        ymov = 0
+        ms = 3
+        damaged = 0
+        keys = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit_game()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if paused:
+                        paused = False
+                    else:
+                        paused = True
+
+        if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
+            ms = 5
+            
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            if not paused:
+                charpos = 'Up'
+                if ply-58 <= 0:
+                    ymov = 0
+                else:
+                    ymov = -1
+                    
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            if not paused:
+                charpos = 'Down'
+                if ply+68 >= 640 and plx not in range(596, 669):
+                    ymov = 0
+                elif ply >= 138 and plx < 0:
+                    ymov = 0
+                else:
+                    ymov = 1
+
+            if ply >= 675:
+                area3 = False
+                ply = 40
+                fight_area_2()
+
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            if not paused:
+                charpos = 'Left'
+                if plx-20 <= 0 and ply > 140:
+                    xmov = 0
+                elif plx <= 596 and ply+68 > 640:
+                    xmov = 0
+                else:
+                    xmov = -1
+
+                if plx+20 < 0:
+                    area3 = False
+                    plx = 1225
+                    start_area()
+                
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            if not paused:
+                charpos = 'Right'
+                if plx+52 >= 1200:
+                    xmov = 0
+                elif plx >= 668 and ply+68 > 640:
+                    xmov = 0                  
+                else:
+                    xmov = 1
+
+        plx += xmov * ms
+        ply += ymov * ms
+
+        displayScreen.fill(mint_green)
+        pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
+        pygame.draw.rect(displayScreen, cardboard_brown, (0, 110, 600, 100))
+        
+        pygame.draw.polygon(displayScreen, cardboard_brown,[(870,100), (850,160), (1100,260), (1120,200)])
+        pygame.draw.polygon(displayScreen, cardboard_brown,[(70,350), (50,400), (300,400), (320,350)])
+
+        tree(tree_coords)
+        character(charpos)
+        
+        current_health -= damaged
+        health_bar()
+        
+        pause(area3)
+        pygame.display.update()
+        clock.tick(60)
+
+    
 def town():
     global plx, ply, paused, current_health
     charpos = 'Down'
