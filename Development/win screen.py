@@ -9,6 +9,7 @@ display_height = 640
 #colour
 black = (0, 0, 0)
 white = (255, 255, 255)
+light_red = (192, 0, 0)
 red = (230, 0, 0)
 bright_red = (255, 0, 0)
 green = (0, 255, 0)
@@ -334,9 +335,9 @@ def starting_area():
 
 
         
-        displayScreen.fill(white)
-        displayText(text_font('arial', 50, True, False), 'Congratulations', black, 'Midleft', 420, 320)
-        displayText(text_font('arial', 25, True, False), 'You have SURVIVED', black, 'Midleft', 470, 400)
+        displayScreen.fill(light_red)
+        displayText(text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
+        displayText(text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
         
         character(charpos)
         
