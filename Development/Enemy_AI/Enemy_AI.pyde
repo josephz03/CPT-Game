@@ -18,8 +18,12 @@ def monster(i):
     rect(monx[i], mony[i], 20, 20)
     if y in range(monx[i]-10, monx[i]+11) or x in range(mony[i]-10, mony[i]+11):
         spotplayer = True
-    if len([i for i,e in enumerate(monx) if e==monx[i]]) >= 2 and len([i for i,f in enumerate(mony) if f==mony[i]]) >= 2:
-        print(True)
+    if len([i for i,e in enumerate(monx) if e==monx[i]]) >= 2:
+        if len([l for l,f in enumerate(mony) if f==mony[i]]) >= 2:
+            monstermov = False
+        else:
+            monstermov = True
+        
     if spotplayer and monstermov:
         if x-25 > monx[i]:
             monx[i] += 2
