@@ -3,7 +3,7 @@ y = 300
 xmov = 0
 ymov = 0
 ms = 4
-moninfo = [[100, 100, 100, 2], [150, 150, 100, 2]]
+moninfo = [[100, 100, 100], [150, 150, 100]]
 monstermov = True
 spotplayer = False
 direction = 'N/A'
@@ -42,22 +42,22 @@ def monster():
                     
                 if direction == 'y':
                     if followx > moninfo[i][0]:
-                        moninfo[i][0] += moninfo[i][3]
+                        moninfo[i][0] += 2
                     elif followx < moninfo[i][0]:
-                        moninfo[i][0] += -moninfo[i][3]
+                        moninfo[i][0] += -2
                     if followy-25 > moninfo[i][1]:
-                        moninfo[i][1] += moninfo[i][3]
+                        moninfo[i][1] += 2
                     elif followy+25 < moninfo[i][1]:
-                        moninfo[i][1] += -moninfo[i][3]
+                        moninfo[i][1] += -2
                 elif direction == 'x':
                     if followx-25 > moninfo[i][0]:
-                        moninfo[i][0] += moninfo[i][3]
+                        moninfo[i][0] += 2
                     elif followx+25 < moninfo[i][0]:
-                        moninfo[i][0] += -moninfo[i][3]
+                        moninfo[i][0] += -2
                     if followy > moninfo[i][1]:
-                        moninfo[i][1] += moninfo[i][3]
+                        moninfo[i][1] += 2
                     elif followy < moninfo[i][1]:
-                        moninfo[i][1] += -moninfo[i][3]
+                        moninfo[i][1] += -2
         else:
             moninfo.pop(i)
 
