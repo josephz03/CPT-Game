@@ -3,60 +3,92 @@ y = 300
 xmov = 0
 ymov = 0
 ms = 4
-monx = [100, 150]
-mony = [100, 150]
+moninfo = [[100, 100, 100, 2], [150, 150, 100, 2]]
 monstermov = True
 spotplayer = False
+direction = 'N/A'
+block = 'N/A'
 
 def character():
     fill(255, 0, 0)
     rect(x, y, 20, 20)
 
-def monster(i):
-    global spotplayer, monstermov
-    fill(0)
-    rect(monx[i], mony[i], 20, 20)
-    if y in range(monx[i]-10, monx[i]+11) or x in range(mony[i]-10, mony[i]+11):
-        spotplayer = True
-    if len([i for i,e in enumerate(monx) if e==monx[i]]) >= 2:
-        if len([l for l,f in enumerate(mony) if f==mony[i]]) >= 2:
-            monstermov = False
+def monster():
+    global spotplayer, direction, moninfo, block
+    for i in range(len(moninfo)):
+        if moninfo[i][2] > 0:
+            if i == 0:
+                followx = x
+                followy = y
+            else:
+                followx = moninfo[i-1][0]
+                followy = moninfo[i-1][1]
+            fill(0)
+            rect(moninfo[i][0], moninfo[i][1], 20, 20)
+            if y in range(moninfo[i][0]-10, moninfo[i][0]+11) or x in range(moninfo[i][1]-10, moninfo[i][1]+11):
+                spotplayer = True
+                
+            if spotplayer:
+                if moninfo[i][0] == x and moninfo[i][1] in range(y-50, y):
+                    block = 'up'
+                elif moninfo[i][0] == x and moninfo[i][1] in range(y, y+50):
+                    block = 'down'
+                elif moninfo[i][1] == y and moninfo[i][0] in range (x-50, x):
+                    block = 'left'
+                elif moninfo [i][1] == y and moninfo[i][0] in range(x, x+50):
+                    block = 'right'
+                else:
+                    block = 'N/A'
+                    
+                if direction == 'y':
+                    if followx > moninfo[i][0]:
+                        moninfo[i][0] += moninfo[i][3]
+                    elif followx < moninfo[i][0]:
+                        moninfo[i][0] += -moninfo[i][3]
+                    if followy-25 > moninfo[i][1]:
+                        moninfo[i][1] += moninfo[i][3]
+                    elif followy+25 < moninfo[i][1]:
+                        moninfo[i][1] += -moninfo[i][3]
+                elif direction == 'x':
+                    if followx-25 > moninfo[i][0]:
+                        moninfo[i][0] += moninfo[i][3]
+                    elif followx+25 < moninfo[i][0]:
+                        moninfo[i][0] += -moninfo[i][3]
+                    if followy > moninfo[i][1]:
+                        moninfo[i][1] += moninfo[i][3]
+                    elif followy < moninfo[i][1]:
+                        moninfo[i][1] += -moninfo[i][3]
         else:
-            monstermov = True
-        
-    if spotplayer and monstermov:
-        if x-25 > monx[i]:
-            monx[i] += 2
-        if x+25 < monx[i]:
-            monx[i] += -2
-        if y-25 > mony[i]:
-            mony[i] += 2
-        if y+25 < mony[i]:
-            mony[i] += -2
+            moninfo.pop(i)
+
 
 def setup():
     size(800, 640)
     
 def draw():
-    global x, y, xmov, ymov, ms, monx, mony, spotplayer
+    global x, y, xmov, ymov, ms, moninfo, spotplayer
     background(255)
     rectMode(CENTER)
     x += xmov * ms
     y += ymov * ms
     character()
-    monster(0)
-    monster(1)
+    monster()
+
 
 def keyPressed():
-    global xmov, ymov
-    if keyCode == UP:
+    global xmov, ymov, direction, block
+    if keyCode == UP and block != 'up':
         ymov = -1
-    if keyCode == LEFT:
+        direction = 'y'
+    if keyCode == LEFT and block != 'left':
         xmov = -1
-    if keyCode == DOWN:
+        direction = 'x'
+    if keyCode == DOWN and block != 'down':
         ymov = 1
-    if keyCode == RIGHT:
+        direction = 'y'
+    if keyCode == RIGHT and block != 'right':
         xmov = 1
+        direction = 'x'
 
 def keyReleased():
     global xmov, ymov
