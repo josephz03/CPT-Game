@@ -33,6 +33,7 @@ current_health = 100
 attackspeed = 40
 damage = 20
 attack = False
+points = 0
 
 # monster settings
 spotplayer = False
@@ -46,6 +47,7 @@ paused = False
 instruction_display = False
 dialogue_display = False
 dialoguelist = [['intro', 'Start']]
+cleared = False
 
 
 displayScreen = pygame.display.set_mode((display_width, display_height))
@@ -276,7 +278,7 @@ def character(charpos):
 
 
 def enemy(monsterlst):
-    global direction, spotplayer, monsterdead, current_health, attack, damage, attackspeed
+    global direction, spotplayer, monsterdead, current_health, attack, damage, attackspeed, points, cleared
     for i in range(len(monsterlst)):
         if i == len(monsterlst)-1:
             followx = plx
@@ -285,26 +287,48 @@ def enemy(monsterlst):
             followx = monsterlst[i-1][0]
             followy = monsterlst[i-1][1]
 
-        if monsterlst[i][4] == 'Left':
-            pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
-            pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
-            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]-6, monsterlst[i][1]-32, 4, 8))
-            pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
-            pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0], monsterlst[i][1]), (monsterlst[i][0], monsterlst[i][1]+10), (monsterlst[i][0]-22, monsterlst[i][1]+20)))
-            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
+        if monsterlst[i][5] == 'zombie':
+            if monsterlst[i][4] == 'Left':
+                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
+                pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]-6, monsterlst[i][1]-32, 4, 8))
+                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
+                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0], monsterlst[i][1]), (monsterlst[i][0], monsterlst[i][1]+10), (monsterlst[i][0]-22, monsterlst[i][1]+20)))
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
 
-        elif monsterlst[i][4] == 'Right':
-            pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
-            pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
-            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+18, monsterlst[i][1]-32, 4, 8))
-            pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
-            pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+18, monsterlst[i][1]), (monsterlst[i][0]+18, monsterlst[i][1]+10), (monsterlst[i][0]+44, monsterlst[i][1]+20)))
-            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
+            elif monsterlst[i][4] == 'Right':
+                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
+                pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+18, monsterlst[i][1]-32, 4, 8))
+                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
+                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+18, monsterlst[i][1]), (monsterlst[i][0]+18, monsterlst[i][1]+10), (monsterlst[i][0]+44, monsterlst[i][1]+20)))
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
+        elif monsterlst[i][5] == 'boss':
+            spotplayer = True
+            if monsterlst[i][4] == 'Left':
+                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+12, monsterlst[i][1]-10, 23, 20))
+                pygame.draw.circle(displayScreen, red, (monsterlst[i][0]+20, monsterlst[i][1]-35), 35)
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]-10, monsterlst[i][1]-40, 10, 10))
+                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0]+10, monsterlst[i][1], 28, 50))
+                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+10, monsterlst[i][1]),(monsterlst[i][0]+10, monsterlst[i][1]+10),(monsterlst[i][0]-22, monsterlst[i][1]+20)))
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+12, monsterlst[i][1]+40, 23, 40))
+            elif monsterlst[i][4] == 'Right':
+                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+12, monsterlst[i][1]-10, 23, 20))
+                pygame.draw.circle(displayScreen, red, (monsterlst[i][0]+20, monsterlst[i][1]-35), 35)
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+35, monsterlst[i][1]-40, 10, 10)) 
+                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0]+10, monsterlst[i][1], 28, 50))
+                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+28, monsterlst[i][1]),(monsterlst[i][0]+28, monsterlst[i][1]+10),(monsterlst[i][0]+64,monsterlst[i][1]+20))) 
+                pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+12, monsterlst[i][1]+40, 23, 30))
 
         if monsterlst[0][2] > 0:
-            pygame.draw.rect(displayScreen, red, (monsterlst[i][0]-16, monsterlst[i][1]-70, monsterlst[i][2]/2, 10))
+            if monsterlst[i][5] == 'zombie':
+                pygame.draw.rect(displayScreen, red, (monsterlst[i][0]-16, monsterlst[i][1]-70, monsterlst[i][2]/2, 10))
+            elif monsterlst[i][5] == 'boss':
+                pygame.draw.rect(displayScreen, red, (350, 10, monsterlst[i][2], 20))
         else:
             monsterdead = True
+            if monsterlst[i][5] == 'boss':
+                cleared = True
 
         if ply in range(monsterlst[i][0]-10, monsterlst[i][0]+11) or plx in range(monsterlst[i][1]-10, monsterlst[i][1]+11):
             spotplayer = True
@@ -388,6 +412,7 @@ def enemy(monsterlst):
     if monsterdead:
         monsterlst.pop(0)
         monsterdead = False
+        points += 1
 
 
 def npc(xloc, yloc, charpos, eye_colour, skin_colour, shadow_skin_colour, shirt_colour, shirt_colour2, pants_colour):
@@ -616,30 +641,37 @@ def start_area():
         plx += xmov * ms
         ply += ymov * ms
 
-        displayScreen.fill(mint_green)
-        pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
-        pygame.draw.rect(displayScreen, cardboard_brown, (700, 110, 500, 100))
+        if current_health > 0:
+            displayScreen.fill(mint_green)
+            pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
+            pygame.draw.rect(displayScreen, cardboard_brown, (700, 110, 500, 100))
 
-        if ply-30 <= tree_coords[0][1] and plx in range(tree_coords[0][0]-110, tree_coords[0][0]+116):
-            character(charpos)
-            tree(tree_coords)
-        elif ply-30 <= tree_coords[1][1] and plx in range(tree_coords[1][0]-110, tree_coords[1][0]+116):
-            character(charpos)
-            tree(tree_coords)
-        elif ply-30 <= tree_coords[2][1] and plx in range(tree_coords[2][0]-110, tree_coords[2][0]+116):
-            character(charpos)
-            tree(tree_coords)
+            if ply-30 <= tree_coords[0][1] and plx in range(tree_coords[0][0]-110, tree_coords[0][0]+116):
+                character(charpos)
+                tree(tree_coords)
+            elif ply-30 <= tree_coords[1][1] and plx in range(tree_coords[1][0]-110, tree_coords[1][0]+116):
+                character(charpos)
+                tree(tree_coords)
+            elif ply-30 <= tree_coords[2][1] and plx in range(tree_coords[2][0]-110, tree_coords[2][0]+116):
+                character(charpos)
+                tree(tree_coords)
+            else:
+                tree(tree_coords)
+                character(charpos)
+
+            if attackspeed < 40:
+                attackspeed += 1
+
+            dialogue('intro', 'Start')
+            health_bar()
+
+            pause(starting_area)
         else:
-            tree(tree_coords)
+            displayScreen.fill(bright_red)
             character(charpos)
+            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
+            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
 
-        if attackspeed < 40:
-            attackspeed += 1
-
-        dialogue('intro', 'Start')
-        health_bar()
-
-        pause(starting_area)
         pygame.display.update()
         clock.tick(60)
 
@@ -649,7 +681,7 @@ def fight_area_1():
     charpos = 'Right'
     game_area = 'fight 1'
     tree_coords = [(300, 550), (850, 100)]
-    monsterlst = []
+    monsterlst = [[100, 100, 100, 100, 'Right', 'zombie']] # [x, y, health, attackspeed, direction, monster type]
     area1 = True
 
     while area1:
@@ -735,25 +767,31 @@ def fight_area_1():
         plx += xmov * ms
         ply += ymov * ms
 
-        displayScreen.fill(mint_green)
-        pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 300))
-        pygame.draw.rect(displayScreen, cardboard_brown, (700, 200, 500, 100))
-        pygame.draw.rect(displayScreen, cardboard_brown, (550, 300, 150, 100))
-        pygame.draw.rect(displayScreen, cardboard_brown, (550, 400, 100, 240))
-        pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 100), (50, 160), (300, 260), (320, 200)])
+        if current_health > 0:
+            displayScreen.fill(mint_green)
+            pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 300))
+            pygame.draw.rect(displayScreen, cardboard_brown, (700, 200, 500, 100))
+            pygame.draw.rect(displayScreen, cardboard_brown, (550, 300, 150, 100))
+            pygame.draw.rect(displayScreen, cardboard_brown, (550, 400, 100, 240))
+            pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 100), (50, 160), (300, 260), (320, 200)])
 
-        enemy(monsterlst)
+            enemy(monsterlst)
 
-        tree(tree_coords)
+            tree(tree_coords)
 
-        character(charpos)
+            character(charpos)
 
-        if attackspeed < 40:
-            attackspeed += 1
+            if attackspeed < 40:
+                attackspeed += 1
 
-        health_bar()
+            health_bar()
 
-        pause(area1)
+            pause(area1)
+        else:
+            displayScreen.fill(bright_red)
+            character(charpos)
+            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
+            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
         pygame.display.update()
         clock.tick(60)
 
@@ -815,6 +853,11 @@ def fight_area_2():
                 else:
                     ymov = 1
 
+                if ply >= 675:
+                    area2 = False
+                    ply = 40
+                    boss_area()
+
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             if not paused:
                 charpos = 'Left'
@@ -843,24 +886,30 @@ def fight_area_2():
         plx += xmov * ms
         ply += ymov * ms
 
-        displayScreen.fill(mint_green)
-        pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 640))
-        pygame.draw.rect(displayScreen, cardboard_brown, (0, 200, 600, 100))
-        pygame.draw.polygon(displayScreen, cardboard_brown, [(870, 100), (850, 160), (1100, 260), (1120, 200)])
-        pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 500), (50, 560), (300, 560), (320, 500)])
+        if current_health > 0:
+            displayScreen.fill(mint_green)
+            pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 640))
+            pygame.draw.rect(displayScreen, cardboard_brown, (0, 200, 600, 100))
+            pygame.draw.polygon(displayScreen, cardboard_brown, [(870, 100), (850, 160), (1100, 260), (1120, 200)])
+            pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 500), (50, 560), (300, 560), (320, 500)])
 
-        enemy(monsterlst)
+            enemy(monsterlst)
 
-        tree(tree_coords)
+            tree(tree_coords)
 
-        character(charpos)
+            character(charpos)
 
-        if attackspeed < 40:
-            attackspeed += 1
+            if attackspeed < 40:
+                attackspeed += 1
 
-        health_bar()
+            health_bar()
 
-        pause(area2)
+            pause(area2)
+        else:
+            displayScreen.fill(bright_red)
+            character(charpos)
+            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
+            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
         pygame.display.update()
         clock.tick(60)
 
@@ -948,23 +997,127 @@ def fight_area_3():
         plx += xmov * ms
         ply += ymov * ms
 
-        displayScreen.fill(mint_green)
-        pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
-        pygame.draw.rect(displayScreen, cardboard_brown, (0, 110, 600, 100))
+        if current_health > 0:
+            displayScreen.fill(mint_green)
+            pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
+            pygame.draw.rect(displayScreen, cardboard_brown, (0, 110, 600, 100))
 
-        pygame.draw.polygon(displayScreen, cardboard_brown, [(870, 100), (850, 160), (1100, 260), (1120, 200)])
-        pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 350), (50, 400), (300, 400), (320, 350)])
+            pygame.draw.polygon(displayScreen, cardboard_brown, [(870, 100), (850, 160), (1100, 260), (1120, 200)])
+            pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 350), (50, 400), (300, 400), (320, 350)])
 
-        enemy(monsterlst)
-        tree(tree_coords)
-        character(charpos)
+            enemy(monsterlst)
+            tree(tree_coords)
+            character(charpos)
 
-        if attackspeed < 40:
-            attackspeed += 1
+            if attackspeed < 40:
+                attackspeed += 1
 
-        health_bar()
+            health_bar()
 
-        pause(area3)
+            pause(area3)
+        else:
+            displayScreen.fill(bright_red)
+            character(charpos)
+            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
+            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
+        pygame.display.update()
+        clock.tick(60)
+
+
+def boss_area():
+    global plx, ply, paused, current_health, game_area, attackspeed, attack, cleared
+    charpos = 'Right'
+    game_area = 'boss'
+    tree_coords = [(400, 200), (1000, 300)]
+    monsterlst = [[600, 300, 500, 100, 'Right', 'boss']]
+    last_area = True
+
+    while last_area:
+        xmov = 0
+        ymov = 0
+        ms = 3
+        damaged = 0
+        keys = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if paused:
+                        paused = False
+                    else:
+                        paused = True
+
+        if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
+            ms = 5
+
+        if keys[pygame.K_SPACE]:
+            if attackspeed == 40:
+                attack = True
+            else:
+                attack = False
+
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            if not paused:
+                if ply-58 <= 0:
+                    ymov = 0
+                else:
+                    ymov = -1
+
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            if not paused:
+                if ply+68 >= 640:
+                    ymov = 0
+                else:
+                    ymov = 1
+
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            if not paused:
+                charpos = 'Left'
+                if plx-20 <= 0:
+                    xmov = 0
+                elif plx <= 496 and ply < 56:
+                    xmov = 0
+                else:
+                    xmov = -1
+
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            if not paused:
+                charpos = 'Right'
+                if plx+52 >= 1200:
+                    xmov = 0
+                elif plx >= 668 and ply < 56:
+                    xmov = 0
+                else:
+                    xmov = 1
+
+        plx += xmov * ms
+        ply += ymov * ms
+
+        if not cleared:
+            if current_health > 0:
+                displayScreen.fill(grey)
+                pygame.draw.rect(displayScreen, grey, (500, 0, 200, 640))
+                pygame.draw.rect(displayScreen, grey, (700, 200, 500, 200))
+                pygame.draw.polygon(displayScreen, brown,[(70,100), (50,160), (300,260), (320,200)])
+                enemy(monsterlst)
+                tree(tree_coords)
+                character(charpos)
+                if attackspeed < 40:
+                    attackspeed += 1
+
+                health_bar()
+            else:
+                displayScreen.fill(bright_red)
+                character(charpos)
+                displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
+                displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
+        else:
+            displayScreen.fill(white)
+            character(charpos)
+            displayText(False, text_font('arial', 50, True, False), 'Congratulations!', black, 'Midleft', 420, 320)
+            displayText(False, text_font('arial', 25, True, False), 'You SURVIVED', black, 'Midleft', 500, 400)
         pygame.display.update()
         clock.tick(60)
 
