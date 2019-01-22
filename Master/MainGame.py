@@ -2,11 +2,11 @@ import pygame
 
 pygame.init()
 
-#display dimensions
+# display dimensions
 display_width = 1200
 display_height = 640
 
-#colour
+# colour
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (230, 0, 0)
@@ -18,21 +18,37 @@ grey = (128, 128, 128)
 light_grey = (192, 192, 192)
 cardboard_brown = (165, 136, 85)
 mint_green = (152, 255, 152)
-tan = (196,144,124)
-peach = (255,224,189)
+tan = (196, 144, 124)
+peach = (255, 224, 189)
 brown = (92, 64, 51)
+darkblue = (17, 30, 108)
+darkdarkgreen = (1, 50, 32)
+darkgreen = (41, 94, 22)
 
-#player info
-plx = 500
-ply = 250
+# player info
+plx = 300
+ply = 200
 maxhealth = 100
 current_health = 100
+attackspeed = 40
+damage = 20
+attack = False
 
+# monster settings
+spotplayer = False
+direction = 'N/A'
+monsterdead = False
+
+
+# game settings
+game_area = 'start'
 paused = False
 instruction_display = False
+dialogue_display = False
+dialoguelist = [['intro', 'Start']]
 
 
-displayScreen = pygame.display.set_mode((display_width,display_height))
+displayScreen = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('The Survivor')
 clock = pygame.time.Clock()
 
@@ -41,8 +57,9 @@ def text_font(font_type, size, bold, italic):
     font = pygame.font.SysFont(font_type, size, bold, italic)
     return font
 
+
 def displayText(animation, font, message, colour, position, xcoord, ycoord):
-    if animation == True:
+    if animation:
         text = ''
         for i in range(len(message)):
             text += message[i]
@@ -53,8 +70,8 @@ def displayText(animation, font, message, colour, position, xcoord, ycoord):
             pygame.display.update()
             pygame.time.wait(5)
         animation = False
-            
-    elif animation == False:
+
+    elif not animation:
         text = font.render(message, True, colour)
         textRect = text.get_rect()
         if position == 'Center':
@@ -64,13 +81,9 @@ def displayText(animation, font, message, colour, position, xcoord, ycoord):
         displayScreen.blit(text, textRect)
 
 
-def quit_game():
-    pygame.quit()
-    quit()
-
-
-def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlength, rectwidth, loop, drawtype):
-    global paused
+def create_button(colour, hover_colour, button_action,
+                  xcoord, ycoord, rectlength, rectwidth, loop, drawtype):
+    global paused, game_area
     mouse_position = pygame.mouse.get_pos()
     mouse_click = pygame.mouse.get_pressed()
     if xcoord + rectlength > mouse_position[0] > xcoord and ycoord + rectwidth > mouse_position[1] > ycoord:
@@ -81,17 +94,28 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
             blitrect.set_alpha(150)
             blitrect.fill(hover_colour)
             displayScreen.blit(blitrect, (xcoord, ycoord))
-            
+
         if mouse_click[0] == 1:
             if button_action == 'Play':
                 loop = False
-                start_area()
+                if game_area == 'start':
+                    start_area()
+                elif game_area == 'fight 1':
+                    fight_area_1()
+                elif game_area == 'fight 2':
+                    fight_area_2()
+                elif game_area == 'fight 3':
+                    fight_area_3()
+                elif game_area == 'town':
+                    town()
+
             elif button_action == 'Manual':
                 loop = False
                 manual()
             elif button_action == 'Quit':
                 loop = False
-                quit_game()
+                pygame.quit()
+                quit()
             elif button_action == 'Main Menu':
                 loop = False
                 main_menu()
@@ -108,6 +132,31 @@ def create_button(colour, hover_colour, button_action, xcoord, ycoord, rectlengt
             displayScreen.blit(blitrect, (xcoord, ycoord))
 
 
+def curved_rect(colour, xcoord, ycoord, length, width):
+    pygame.draw.circle(displayScreen, colour, (xcoord+5, ycoord+5), 5)
+    pygame.draw.circle(displayScreen, colour, (xcoord+5, ycoord+width-5), 5)
+    pygame.draw.circle(displayScreen, colour, (xcoord+length-5, ycoord+5), 5)
+    pygame.draw.circle(displayScreen, colour, (xcoord+length-5, ycoord+width-5), 5)
+    pygame.draw.rect(displayScreen, colour, (xcoord, ycoord+5, length, width-10))
+    pygame.draw.rect(displayScreen, colour, (xcoord+5, ycoord, length-10, width))
+
+
+def dialogue(context, area):
+    global dialogue_display, dialoguelist
+    if area == 'Start':
+        if context == 'intro':
+            if [context, area] in dialoguelist:
+                dialogue_display = True
+                curved_rect(white, 220, 100, 200, 80)
+                displayText(False, text_font('arial', 20, False, False), 'Ugh, my head hurts...', black, 'Midleft', 230, 120)
+                displayText(False, text_font('arial', 20, False, False), 'Where am I?', black, 'Midleft', 230, 150)
+                pygame.draw.rect(displayScreen, black, (365, 155, 50, 20), 1)
+                displayText(False, text_font('arial', 15, False, False), 'SPACE', black, 'Center', 390, 165)
+                if pygame.key.get_pressed()[pygame.K_SPACE]:
+                    dialoguelist.remove([context, area])
+                    dialogue_display = False
+
+
 def back_button(loop):
     global paused
     if paused:
@@ -116,6 +165,7 @@ def back_button(loop):
         create_button(white, grey, 'Main Menu', 6, 6, 60, 41, loop, 'rectangle')
     pygame.draw.polygon(displayScreen, light_brown, [(7, 27), (7, 26), (25, 7), (25, 20), (66, 20), (66, 6), (6, 6), (6, 47), (66, 47), (66, 20), (64, 20), (64, 34), (25, 34), (25, 46)])
     displayText(False, text_font('arial', 15, True, False), 'BACK', black, 'Center', 35, 26)
+
 
 def health_bar():
     health_bar = pygame.Surface((maxhealth*3, 20))
@@ -130,7 +180,7 @@ def health_bar():
 
     pygame.draw.rect(displayScreen, white, (20, 20, maxhealth*3, 20), 1)
     displayText(False, text_font('microsofthimalaya', 30, False, True),
-                    '{}'.format(current_health), white, 'Center', 40, 33)
+                '{}'.format(current_health), white, 'Center', 40, 33)
 
 
 def pause(loop):
@@ -138,7 +188,7 @@ def pause(loop):
         pauseDisplay = pygame.Surface((display_width, display_height))
         pauseDisplay.set_alpha(60)
         pauseDisplay.fill(black)
-        displayScreen.blit(pauseDisplay, (0,0))
+        displayScreen.blit(pauseDisplay, (0, 0))
 
         displayText(False, text_font('microsofthimalaya', 160, False, False),
                     'PAUSED', white, 'Center', display_width/2, display_height/3 - 40)
@@ -151,13 +201,12 @@ def pause(loop):
         create_button(grey, light_grey, 'Main Menu', 420, 390, 360, 30, loop, 'blit')
         displayText(False, text_font('microsofthimalaya', 35, True, False),
                     'Main Menu', white, 'Center', display_width/2, 410)
-        
+
 
 def instructions(animation):
     global instruction_display
     if instruction_display:
         animation = False
-        
     displayText(animation, text_font('arial', 25, True, False), 'Instructions', black, 'Midleft', 785, 70)
     displayText(animation, text_font('arial', 25, True, False), 'WASD = controls', black, 'Midleft', 620, 100)
     displayText(animation, text_font('arial', 25, True, False), 'Space = attack/use item', black, 'Midleft', 620, 120)
@@ -175,46 +224,171 @@ def instructions(animation):
     displayText(animation, text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 434)
 
 
-
 def character(charpos):
     global plx, ply
-    if charpos == 'Down':
-        pygame.draw.rect(displayScreen, tan, (plx+8, ply-10, 20, 10))
-        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
-        pygame.draw.rect(displayScreen, black, (plx+8, ply-32, 4, 8))
-        pygame.draw.rect(displayScreen, black, (plx+24, ply-32, 4, 8))
-        pygame.draw.rect(displayScreen, black, (plx, ply, 36, 40))
-        pygame.draw.rect(displayScreen, red, (plx+10, ply, 16, 40))
-        pygame.draw.polygon(displayScreen, black, ((plx,ply),(plx,ply+10),(plx-22,ply+20)))
-        pygame.draw.polygon(displayScreen, black, ((plx+36,ply),(plx+36,ply+10),(plx+54,ply+20)))
-        pygame.draw.rect(displayScreen, black, (plx+3, ply+40, 10, 30))
-        pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
-        
-    elif charpos == 'Left':
-        pygame.draw.rect(displayScreen, tan, (plx+12, ply-10, 13, 10))
-        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
-        pygame.draw.rect(displayScreen, black, (plx+4, ply-32, 4, 8))
-        pygame.draw.rect(displayScreen, black, (plx+10, ply, 18, 40))
-        pygame.draw.polygon(displayScreen, black, ((plx+10,ply),(plx+10,ply+10),(plx-22,ply+20)))
-        pygame.draw.rect(displayScreen, black, (plx+12, ply+40, 13, 30))
-        
-    elif charpos == 'Right':
-        pygame.draw.rect(displayScreen, tan, (plx+12, ply-10, 13, 10))
-        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
-        pygame.draw.rect(displayScreen, black, (plx+28, ply-32, 4, 8)) 
-        pygame.draw.rect(displayScreen, black, (plx+10, ply, 18, 40))
-        pygame.draw.polygon(displayScreen, black, ((plx+28,ply),(plx+28,ply+10),(plx+54,ply+20))) 
-        pygame.draw.rect(displayScreen, black, (plx+12, ply+40, 13, 30))
+    if charpos == 'Left':
+        # head
+        curved_rect(peach, plx, ply, 42, 36)
+        pygame.draw.rect(displayScreen, black, (plx+4, ply+18, 4, 8))
+        pygame.draw.rect(displayScreen, black, (plx+22, ply+18, 4, 8))
+        pygame.draw.rect(displayScreen, black, (plx+4, ply+12, 8, 4))
+        pygame.draw.rect(displayScreen, black, (plx+22, ply+12, 8, 4))
+        # hair
+        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx-10, ply-10, 52, 20))
+        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx+32, ply-5, 15, 36))
+        # neck
+        pygame.draw.rect(displayScreen, tan, (plx+15, ply+36, 12, 2))
+        # legs
+        pygame.draw.polygon(displayScreen, black, [(plx+5, ply+69), (plx+5, ply+74), (plx+9, ply+78), (plx+11, ply+78), (plx+11, ply+74)])
+        pygame.draw.polygon(displayScreen, black, [(plx+30, ply+74), (plx+34, ply+78), (plx+36, ply+78), (plx+36, ply+69)])
+        # lefthand
+        pygame.draw.circle(displayScreen, peach, (plx+5, ply+55), 5)
+        # body
+        curved_rect(black, plx+5, ply+38, 32, 36)
+        # righthand
+        pygame.draw.circle(displayScreen, black, (plx+35, ply+45), 5)
+        pygame.draw.circle(displayScreen, black, (plx+31, ply+50), 5)
+        pygame.draw.circle(displayScreen, peach, (plx+27, ply+55), 5)
 
-    elif charpos == 'Up':
-        pygame.draw.rect(displayScreen, tan, (plx+8, ply-10, 20, 10))
-        pygame.draw.circle(displayScreen, peach, (plx+18, ply-30), 25)
-        pygame.draw.rect(displayScreen, black, (plx, ply, 36, 40))
-        pygame.draw.polygon(displayScreen, black, ((plx,ply),(plx,ply+10),(plx-22,ply+20)))
-        pygame.draw.polygon(displayScreen, black, ((plx+36,ply),(plx+36,ply+10),(plx+54,ply+20)))
-        pygame.draw.rect(displayScreen, black, (plx+3, ply+40, 10, 30))
-        pygame.draw.rect(displayScreen, black, (plx+22, ply+40, 10, 30))
-    
+    elif charpos == 'Right':
+        # head
+        curved_rect(peach, plx, ply, 42, 36)
+        pygame.draw.rect(displayScreen, black, (plx+16, ply+18, 4, 8))
+        pygame.draw.rect(displayScreen, black, (plx+34, ply+18, 4, 8))
+        pygame.draw.rect(displayScreen, black, (plx+12, ply+12, 8, 4))
+        pygame.draw.rect(displayScreen, black, (plx+30, ply+12, 8, 4))
+        # hair
+        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx, ply-10, 52, 20))
+        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx-5, ply-5, 15, 36))
+        # neck
+        pygame.draw.rect(displayScreen, tan, (plx+15, ply+36, 12, 2))
+        # legs
+        pygame.draw.polygon(displayScreen, black, [(plx+5, ply+69), (plx+5, ply+78), (plx+7, ply+78), (plx+11, ply+74)])
+        pygame.draw.polygon(displayScreen, black, [(plx+30, ply+74), (plx+30, ply+78), (plx+32, ply+78), (plx+36, ply+74), (plx+36, ply+69)])
+        # righthand
+        pygame.draw.circle(displayScreen, peach, (plx+37, ply+55), 5)
+        # body
+        curved_rect(black, plx+5, ply+38, 32, 36)
+        # lefthand
+        pygame.draw.circle(displayScreen, black, (plx+7, ply+45), 5)
+        pygame.draw.circle(displayScreen, black, (plx+11, ply+50), 5)
+        pygame.draw.circle(displayScreen, peach, (plx+15, ply+55), 5)
+
+
+def enemy(monsterlst):
+    global direction, spotplayer, monsterdead, current_health, attack, damage, attackspeed
+    for i in range(len(monsterlst)):
+        if i == len(monsterlst)-1:
+            followx = plx
+            followy = ply
+        else:
+            followx = monsterlst[i-1][0]
+            followy = monsterlst[i-1][1]
+
+        if monsterlst[i][4] == 'Left':
+            pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
+            pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
+            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]-6, monsterlst[i][1]-32, 4, 8))
+            pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
+            pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0], monsterlst[i][1]), (monsterlst[i][0], monsterlst[i][1]+10), (monsterlst[i][0]-22, monsterlst[i][1]+20)))
+            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
+
+        elif monsterlst[i][4] == 'Right':
+            pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
+            pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
+            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+18, monsterlst[i][1]-32, 4, 8))
+            pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
+            pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+18, monsterlst[i][1]), (monsterlst[i][0]+18, monsterlst[i][1]+10), (monsterlst[i][0]+44, monsterlst[i][1]+20)))
+            pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
+
+        if monsterlst[0][2] > 0:
+            pygame.draw.rect(displayScreen, red, (monsterlst[i][0]-16, monsterlst[i][1]-70, monsterlst[i][2]/2, 10))
+        else:
+            monsterdead = True
+
+        if ply in range(monsterlst[i][0]-10, monsterlst[i][0]+11) or plx in range(monsterlst[i][1]-10, monsterlst[i][1]+11):
+            spotplayer = True
+
+        if spotplayer:
+            if monsterlst[i][0] == plx and monsterlst[i][1] in range(ply-50, ply):
+                if monsterlst[i][3] < 100:
+                    monsterlst[i][3] += 1
+                else:
+                    current_health -= 5
+                    monsterlst[i][3] = 0
+                if attack:
+                    monsterlst[i][2] -= damage
+                    attack = False
+                    attackspeed = 0
+            elif monsterlst[i][0] == plx and monsterlst[i][1] in range(ply, ply+50):
+                if monsterlst[i][3] < 100:
+                    monsterlst[i][3] += 1
+                else:
+                    current_health -= 5
+                    monsterlst[i][3] = 0
+                if attack:
+                    monsterlst[i][2] -= damage
+                    attack = False
+                    attackspeed = 0
+            elif monsterlst[i][1] == ply and monsterlst[i][0] in range(plx-50, plx):
+                if monsterlst[i][3] < 100:
+                    monsterlst[i][3] += 1
+                else:
+                    current_health -= 5
+                    monsterlst[i][3] = 0
+                if attack:
+                    monsterlst[i][2] -= damage
+                    attack = False
+                    attackspeed = 0
+            elif monsterlst[i][1] == ply and monsterlst[i][0] in range(plx, plx+50):
+                if monsterlst[i][3] < 100:
+                    monsterlst[i][3] += 1
+                else:
+                    current_health -= 5
+                    monsterlst[i][3] = 0
+                if attack:
+                    monsterlst[i][2] -= damage
+                    attack = False
+                    attackspeed = 0
+
+            if direction == 'y':
+                if followx > monsterlst[i][0]:
+                    monsterlst[i][0] += 2
+                    monsterlst[i][4] = 'Right'
+                elif followx < monsterlst[i][0]:
+                    monsterlst[i][0] += -2
+                    monsterlst[i][4] = 'Left'
+                else:
+                    monsterlst[i][0] += 0
+
+                if followy-50 > monsterlst[i][1]:
+                    monsterlst[i][1] += 2
+                elif followy+50 < monsterlst[i][1]:
+                    monsterlst[i][1] += -2
+                else:
+                    monsterlst[i][1] += 0
+
+            elif direction == 'x':
+                if followx-50 > monsterlst[i][0]:
+                    monsterlst[i][0] += 2
+                    monsterlst[i][4] = 'Right'
+                elif followx+50 < monsterlst[i][0]:
+                    monsterlst[i][0] += -2
+                    monsterlst[i][4] = 'Left'
+                else:
+                    monsterlst[i][0] += 0
+
+                if followy > monsterlst[i][1]:
+                    monsterlst[i][1] += 2
+                elif followy < monsterlst[i][1]:
+                    monsterlst[i][1] += -2
+                else:
+                    monsterlst[i][1] += 0
+
+    if monsterdead:
+        monsterlst.pop(0)
+        monsterdead = False
+
 
 def npc(xloc, yloc, charpos, eye_colour, skin_colour, shadow_skin_colour, shirt_colour, shirt_colour2, pants_colour):
     if charpos == 'Down':
@@ -224,45 +398,45 @@ def npc(xloc, yloc, charpos, eye_colour, skin_colour, shadow_skin_colour, shirt_
         pygame.draw.rect(displayScreen, eye_colour, (xloc+24, yloc-32, 4, 8))
         pygame.draw.rect(displayScreen, shirt_colour, (xloc, yloc, 36, 40))
         pygame.draw.rect(displayScreen, shirt_colour2, (xloc+10, yloc, 16, 40))
-        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc,yloc),(xloc,yloc+10),(xloc-22,yloc+20)))
-        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+36,yloc),(xloc+36,yloc+10),(xloc+54,yloc+20)))
+        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc, yloc), (xloc, yloc+10), (xloc-22, yloc+20)))
+        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+36, yloc), (xloc+36, yloc+10), (xloc+54, yloc+20)))
         pygame.draw.rect(displayScreen, pants_colour, (xloc+3, yloc+40, 10, 30))
         pygame.draw.rect(displayScreen, pants_colour, (xloc+22, yloc+40, 10, 30))
-        
+
     elif charpos == 'Left':
         pygame.draw.rect(displayScreen, shadow_skin_colour, (xloc+12, yloc-10, 13, 10))
         pygame.draw.circle(displayScreen, skin_colour, (xloc+18, yloc-30), 25)
         pygame.draw.rect(displayScreen, eye_colour, (xloc+4, yloc-32, 4, 8))
         pygame.draw.rect(displayScreen, shirt_colour, (xloc+10, yloc, 18, 40))
-        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+10,yloc),(xloc+10,yloc+10),(xloc-22,yloc+20)))
+        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+10, yloc), (xloc+10, yloc+10), (xloc-22, yloc+20)))
         pygame.draw.rect(displayScreen, pants_colour, (xloc+12, yloc+40, 13, 30))
-        
+
     elif charpos == 'Right':
         pygame.draw.rect(displayScreen, shadow_skin_colour, (xloc+12, yloc-10, 13, 10))
         pygame.draw.circle(displayScreen, skin_colour, (xloc+18, yloc-30), 25)
-        pygame.draw.rect(displayScreen, eye_colour, (xloc+28, yloc-32, 4, 8)) 
+        pygame.draw.rect(displayScreen, eye_colour, (xloc+28, yloc-32, 4, 8))
         pygame.draw.rect(displayScreen, shirt_colour, (xloc+10, yloc, 18, 40))
-        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+28,yloc),(xloc+28,yloc+10),(xloc+54,yloc+20))) 
+        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+28, yloc), (xloc+28, yloc+10), (xloc+54, yloc+20)))
         pygame.draw.rect(displayScreen, pants_colour, (xloc+12, yloc+40, 13, 30))
 
     elif charpos == 'Up':
         pygame.draw.rect(displayScreen, shadow_skin_colour, (xloc+8, yloc-10, 20, 10))
         pygame.draw.circle(displayScreen, skin_colour, (xloc+18, yloc-30), 25)
         pygame.draw.rect(displayScreen, shirt_colour, (xloc, xloc, 36, 40))
-        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc,yloc),(xloc,yloc+10),(xloc-22,yloc+20)))
-        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+36,yloc),(xloc+36,yloc+10),(xloc+54,yloc+20)))
+        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc, yloc), (xloc, yloc+10), (xloc-22, yloc+20)))
+        pygame.draw.polygon(displayScreen, shirt_colour, ((xloc+36, yloc), (xloc+36, yloc+10), (xloc+54, yloc+20)))
         pygame.draw.rect(displayScreen, pants_colour, (xloc+3, yloc+40, 10, 30))
         pygame.draw.rect(displayScreen, pants_colour, (xloc+22, yloc+40, 10, 30))
 
-        
+
 def tree(tree_coordinates):
     leaves = [(35, 60), (5, 60), (65, 30), (20, 30), (-25, 30), (35, 0), (5, 0)]
     for i in range(len(tree_coordinates)):
         pygame.draw.rect(displayScreen, brown, (tree_coordinates[i][0], tree_coordinates[i][1], 40, 100))
         for leaf in range(len(leaves)):
-            pygame.draw.circle(displayScreen, green, (tree_coordinates[i][0]+leaves[leaf][0],tree_coordinates[i][1]-leaves[leaf][1]), 30)
+            pygame.draw.circle(displayScreen, green, (tree_coordinates[i][0]+leaves[leaf][0], tree_coordinates[i][1]-leaves[leaf][1]), 30)
 
-                    
+
 def main_menu():
     global paused
     paused = False
@@ -303,18 +477,18 @@ def manual():
     shadow = 2
     cover_x = 0
     cover_y = 0
-    
+
     while manual_menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_game()
-                
-        displayScreen.fill(light_brown)
+                pygame.quit()
+                quit()
 
+        displayScreen.fill(light_brown)
         back_button(manual_menu)
 
-        #book animation
-        if book_opening == True:
+        # book animation
+        if book_opening:
             pygame.draw.polygon(displayScreen, black, [(leftx+shadow, upy+shadow), (leftx+shadow, downy+shadow), (rightx+shadow, downy+shadow), (rightx+shadow, upy+shadow)])
             pygame.draw.polygon(displayScreen, midnight_blue, [(leftx, upy), (leftx, downy), (rightx, downy), (rightx, upy)])
             if upy == 20:
@@ -326,17 +500,17 @@ def manual():
                     shadow = 0
                     pygame.draw.polygon(displayScreen, white, [(600, 22), (600, 618), (1098, 618), (1098, 22)])
                     pygame.draw.polygon(displayScreen, black, [(600, 22), (600, 618), (1098, 618), (1098, 22)], 1)
-                    
+
                     pygame.draw.polygon(displayScreen, midnight_blue, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)])
                     pygame.draw.polygon(displayScreen, black, [(600, 20), (600, 620), (1100-cover_x, 620-cover_y), (1100-cover_x, 20-cover_y)], 1)
 
                     if cover_x == 1000:
-                        cover_x += 0                    
+                        cover_x += 0
                         instructions(True)
                         instruction_display = True
                     else:
                         cover_x += 8
-                        
+
                     if cover_x < 490:
                         cover_y += 2
                     elif cover_y == 0:
@@ -345,7 +519,7 @@ def manual():
                         cover_y += 0
                     elif cover_x > 510:
                         cover_y += -2
-                    
+
                 else:
                     leftx += 2
                     rightx += 2
@@ -356,24 +530,24 @@ def manual():
                 downy += 2
 
         pygame.display.update()
-        
 
 
 def start_area():
-    global plx, ply, paused, current_health
-    charpos = 'Down'
+    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack, dialogue_display
+    charpos = 'Right'
+    game_area = 'start'
     tree_coords = [(265, 400), (80, 230), (540, 100)]
     starting_area = True
-    
+
     while starting_area:
         xmov = 0
         ymov = 0
         ms = 3
-        damaged = 0
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_game()
+                pygame.quit()
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if paused:
@@ -383,17 +557,23 @@ def start_area():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
-            
+        if keys[pygame.K_SPACE]:
+            if not paused and not dialogue_display:
+                if attackspeed == 40:
+                    attack = True
+                else:
+                    attack = False
+
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            if not paused:
-                charpos = 'Up'
+            if not paused and not dialogue_display:
+                direction = 'y'
                 if ply-58 <= 0:
                     ymov = 0
                 else:
-                    ymov = -1                  
+                    ymov = -1
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            if not paused:
-                charpos = 'Down'
+            if not paused and not dialogue_display:
+                direction = 'y'
                 if ply+68 >= 640 and plx not in range(596, 669):
                     ymov = 0
                 elif ply >= 138 and plx+52 > 1200:
@@ -407,22 +587,24 @@ def start_area():
                 fight_area_1()
 
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Left'
+                direction = 'x'
                 if plx-20 <= 0:
                     xmov = 0
                 elif plx <= 596 and ply+68 > 640:
                     xmov = 0
                 else:
                     xmov = -1
-                
+
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Right'
+                direction = 'x'
                 if plx+52 >= 1200 and ply > 140:
                     xmov = 0
                 elif plx >= 668 and ply+68 > 640:
-                    xmov = 0                  
+                    xmov = 0
                 else:
                     xmov = 1
 
@@ -438,7 +620,6 @@ def start_area():
         pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
         pygame.draw.rect(displayScreen, cardboard_brown, (700, 110, 500, 100))
 
-
         if ply-30 <= tree_coords[0][1] and plx in range(tree_coords[0][0]-110, tree_coords[0][0]+116):
             character(charpos)
             tree(tree_coords)
@@ -451,21 +632,26 @@ def start_area():
         else:
             tree(tree_coords)
             character(charpos)
-        
-        current_health -= damaged
+
+        if attackspeed < 40:
+            attackspeed += 1
+
+        dialogue('intro', 'Start')
         health_bar()
-        
+
         pause(starting_area)
         pygame.display.update()
         clock.tick(60)
 
 
 def fight_area_1():
-    global plx, ply, paused, current_health
-    charpos = 'Down'
+    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack
+    charpos = 'Right'
+    game_area = 'fight 1'
     tree_coords = [(300, 550), (850, 100)]
+    monsterlst = []
     area1 = True
-    
+
     while area1:
         xmov = 0
         ymov = 0
@@ -474,7 +660,8 @@ def fight_area_1():
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_game()
+                pygame.quit()
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if paused:
@@ -484,9 +671,15 @@ def fight_area_1():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+
+        if keys[pygame.K_SPACE]:
+            if attackspeed == 40:
+                attack = True
+            else:
+                attack = False
+
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
-                charpos = 'Up'
                 if ply-58 <= 0 and plx not in range(596, 669):
                     ymov = 0
                 elif plx+52 >= 1200 and ply < 136:
@@ -498,10 +691,10 @@ def fight_area_1():
                     area1 = False
                     ply = 640
                     start_area()
-                    
+
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
-                charpos = 'Down'
+                charpos = 'Left'
                 if ply+68 >= 640 and plx not in range(546, 619):
                     ymov = 0
                 elif plx+52 >= 1200 and ply > 226:
@@ -547,26 +740,32 @@ def fight_area_1():
         pygame.draw.rect(displayScreen, cardboard_brown, (700, 200, 500, 100))
         pygame.draw.rect(displayScreen, cardboard_brown, (550, 300, 150, 100))
         pygame.draw.rect(displayScreen, cardboard_brown, (550, 400, 100, 240))
-       
-        pygame.draw.polygon(displayScreen, cardboard_brown,[(70,100), (50,160), (300,260), (320,200)])
-        
+        pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 100), (50, 160), (300, 260), (320, 200)])
+
+        enemy(monsterlst)
+
         tree(tree_coords)
-        
+
         character(charpos)
-        current_health -= damaged
+
+        if attackspeed < 40:
+            attackspeed += 1
+
         health_bar()
-        
-        pause(area1)  
+
+        pause(area1)
         pygame.display.update()
         clock.tick(60)
 
 
 def fight_area_2():
-    global plx, ply, paused, current_health
-    charpos = 'Down'
+    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack
+    charpos = 'Right'
+    game_area = 'fight 2'
     tree_coords = [(1000, 450)]
+    monsterlst = []
     area2 = True
-    
+
     while area2:
         xmov = 0
         ymov = 0
@@ -575,7 +774,8 @@ def fight_area_2():
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_game()
+                pygame.quit()
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if paused:
@@ -585,10 +785,15 @@ def fight_area_2():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
-            
+
+        if keys[pygame.K_SPACE]:
+            if attackspeed == 40:
+                attack = True
+            else:
+                attack = False
+
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
-                charpos = 'Up'
                 if ply-58 <= 0 and plx not in range(596, 669):
                     ymov = 0
                 elif plx <= 0 and ply < 136:
@@ -600,10 +805,9 @@ def fight_area_2():
                     area2 = False
                     ply = 640
                     fight_area_3()
-                    
+
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
-                charpos = 'Down'
                 if ply+68 >= 640 and plx not in range(596, 669):
                     ymov = 0
                 elif plx <= 0 and ply > 226:
@@ -636,34 +840,39 @@ def fight_area_2():
                 else:
                     xmov = 1
 
-
         plx += xmov * ms
         ply += ymov * ms
 
         displayScreen.fill(mint_green)
         pygame.draw.rect(displayScreen, cardboard_brown, (600, 0, 100, 640))
         pygame.draw.rect(displayScreen, cardboard_brown, (0, 200, 600, 100))
-        
-        pygame.draw.polygon(displayScreen, cardboard_brown,[(870,100), (850,160), (1100,260), (1120,200)])
-        pygame.draw.polygon(displayScreen, cardboard_brown,[(70,500), (50,560), (300,560), (320,500)])
-        
+        pygame.draw.polygon(displayScreen, cardboard_brown, [(870, 100), (850, 160), (1100, 260), (1120, 200)])
+        pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 500), (50, 560), (300, 560), (320, 500)])
+
+        enemy(monsterlst)
+
         tree(tree_coords)
-        
+
         character(charpos)
-        current_health -= damaged
+
+        if attackspeed < 40:
+            attackspeed += 1
+
         health_bar()
-        
-        pause(area2)  
+
+        pause(area2)
         pygame.display.update()
         clock.tick(60)
 
-    
+
 def fight_area_3():
-    global plx, ply, paused, current_health
-    charpos = 'Down'
+    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack
+    charpos = 'Right'
+    game_area = 'fight 3'
     tree_coords = [(1000, 450)]
+    monsterlst = []
     area3 = True
-    
+
     while area3:
         xmov = 0
         ymov = 0
@@ -672,7 +881,8 @@ def fight_area_3():
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_game()
+                pygame.quit()
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if paused:
@@ -682,18 +892,22 @@ def fight_area_3():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
-            
+
+        if keys[pygame.K_SPACE]:
+            if attackspeed == 40:
+                attack = True
+            else:
+                attack = False
+
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
-                charpos = 'Up'
                 if ply-58 <= 0:
                     ymov = 0
                 else:
                     ymov = -1
-                    
+
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
-                charpos = 'Down'
                 if ply+68 >= 640 and plx not in range(596, 669):
                     ymov = 0
                 elif ply >= 138 and plx < 0:
@@ -720,14 +934,14 @@ def fight_area_3():
                     area3 = False
                     plx = 1225
                     start_area()
-                
+
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if not paused:
                 charpos = 'Right'
                 if plx+52 >= 1200:
                     xmov = 0
                 elif plx >= 668 and ply+68 > 640:
-                    xmov = 0                  
+                    xmov = 0
                 else:
                     xmov = 1
 
@@ -737,27 +951,31 @@ def fight_area_3():
         displayScreen.fill(mint_green)
         pygame.draw.rect(displayScreen, cardboard_brown, (600, 110, 100, 530))
         pygame.draw.rect(displayScreen, cardboard_brown, (0, 110, 600, 100))
-        
-        pygame.draw.polygon(displayScreen, cardboard_brown,[(870,100), (850,160), (1100,260), (1120,200)])
-        pygame.draw.polygon(displayScreen, cardboard_brown,[(70,350), (50,400), (300,400), (320,350)])
 
+        pygame.draw.polygon(displayScreen, cardboard_brown, [(870, 100), (850, 160), (1100, 260), (1120, 200)])
+        pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 350), (50, 400), (300, 400), (320, 350)])
+
+        enemy(monsterlst)
         tree(tree_coords)
         character(charpos)
-        
-        current_health -= damaged
+
+        if attackspeed < 40:
+            attackspeed += 1
+
         health_bar()
-        
+
         pause(area3)
         pygame.display.update()
         clock.tick(60)
 
-    
+
 def town():
-    global plx, ply, paused, current_health
-    charpos = 'Down'
+    global plx, ply, paused, current_health, game_area, attackspeed, attack
+    charpos = 'Right'
+    game_area = 'town'
     tree_coords = [(300, 550), (850, 100)]
     town_area = True
-    
+
     while town_area:
         xmov = 0
         ymov = 0
@@ -766,7 +984,8 @@ def town():
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_game()
+                pygame.quit()
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if paused:
@@ -776,9 +995,15 @@ def town():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+
+        if keys[pygame.K_SPACE]:
+            if attackspeed == 40:
+                attack = True
+            else:
+                attack = False
+
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused:
-                charpos = 'Up'
                 if ply-58 <= 0 and plx not in range(496, 669):
                     ymov = 0
                 else:
@@ -789,10 +1014,9 @@ def town():
                     plx = 580
                     ply = 640
                     fight_area_1()
-                    
+
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused:
-                charpos = 'Down'
                 if ply+68 >= 640:
                     ymov = 0
                 else:
@@ -823,7 +1047,7 @@ def town():
 
         displayScreen.fill(mint_green)
         pygame.draw.rect(displayScreen, grey, (500, 0, 200, 640))
-        
+
         pygame.draw.rect(displayScreen, cardboard_brown, (0, 130, 130, 100))
         npc(50, 200, 'Right', black, peach, tan, red, red, black)
         pygame.draw.rect(displayScreen, grey, (0, 230, 130, 50))
@@ -847,16 +1071,19 @@ def town():
         pygame.draw.rect(displayScreen, grey, (1070, 500, 130, 50))
         pygame.draw.rect(displayScreen, grey, (1070, 350, 130, 50))
         pygame.draw.rect(displayScreen, grey, (1070, 350, 3, 200))
-        
+
         tree(tree_coords)
-        
+
         character(charpos)
-        current_health -= damaged
+
+        if attackspeed < 40:
+            attackspeed += 1
+
         health_bar()
-        
-        pause(town_area)  
+
+        pause(town_area)
         pygame.display.update()
         clock.tick(60)
-        
+
 
 main_menu()
