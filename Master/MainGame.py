@@ -17,23 +17,28 @@ midnight_blue = (25, 25, 112)
 grey = (128, 128, 128)
 light_grey = (192, 192, 192)
 cardboard_brown = (165, 136, 85)
+dark_brown = (101, 67, 33)
 mint_green = (152, 255, 152)
 tan = (196, 144, 124)
 peach = (255, 224, 189)
+golden = (249, 215, 126)
 brown = (92, 64, 51)
-darkblue = (17, 30, 108)
-darkdarkgreen = (1, 50, 32)
-darkgreen = (41, 94, 22)
+dark_blue = (17, 30, 108)
+dark_dark_green = (1, 50, 32)
+dark_green = (41, 94, 22)
 
 # player info
 plx = 300
 ply = 200
-maxhealth = 100
+defense = 0
+max_health = 100
 current_health = 100
-attackspeed = 40
+attack_speed = 40
+attack_speed_count = 0
 damage = 20
 attack = False
-points = 0
+gold = 0
+lost_souls = 0
 
 # monster settings
 spotplayer = False
@@ -44,9 +49,11 @@ monsterdead = False
 # game settings
 game_area = 'start'
 paused = False
+display_stats = False
 instruction_display = False
 dialogue_display = False
-dialoguelist = [['intro', 'Start']]
+dialoguelist = [['intro', 'Start'], ['block area', 'Start'], ['enter area', 'Start'], ['block area', 'Area1'], ['disgust', 'Area1'], ['town', 'Area1']]
+tutorial = True
 cleared = False
 
 
@@ -150,17 +157,75 @@ def dialogue(context, area):
             if [context, area] in dialoguelist:
                 dialogue_display = True
                 curved_rect(white, 220, 100, 200, 80)
-                displayText(False, text_font('arial', 20, False, False), 'Ugh, my head hurts...', black, 'Midleft', 230, 120)
-                displayText(False, text_font('arial', 20, False, False), 'Where am I?', black, 'Midleft', 230, 150)
+                displayText(False, text_font('arial', 20, False, False), "Ugh, my head hurts...", black, 'Midleft', 230, 120)
+                displayText(False, text_font('arial', 20, False, False), "Where am I?", black, 'Midleft', 230, 150)
                 pygame.draw.rect(displayScreen, black, (365, 155, 50, 20), 1)
                 displayText(False, text_font('arial', 15, False, False), 'SPACE', black, 'Center', 390, 165)
+                if pygame.key.get_pressed()[pygame.K_SPACE]:
+                    dialoguelist.remove([context, area])
+                    dialogue_display = False
+        if context == 'block area':
+            if [context, area] in dialoguelist:
+                dialogue_display = True
+                curved_rect(white, 980, 20, 200, 80)
+                displayText(False, text_font('arial', 20, False, False), "Smells like blood...", black, 'Midleft', 990, 40)
+                displayText(False, text_font('arial', 20, False, False), "I shouldn't go there.", black, 'Midleft', 990, 60)
+                pygame.draw.rect(displayScreen, black, (1125, 75, 50, 20), 1)
+                displayText(False, text_font('arial', 15, False, False), 'SPACE', black, 'Center', 1150, 85)
+                if pygame.key.get_pressed()[pygame.K_SPACE]:
+                    dialoguelist.remove([context, area])
+                    dialogue_display = False
+        if context == 'enter area':
+            if [context, area] in dialoguelist:
+                dialogue_display = True
+                curved_rect(white, plx-80, ply-100, 200, 80)
+                displayText(False, text_font('arial', 20, False, False), "It doesn't smell as bad", black, 'Midleft', plx-70, ply-80)
+                displayText(False, text_font('arial', 20, False, False), "here... Where is", black, 'Midleft', plx-70, ply-60)
+                displayText(False, text_font('arial', 20, False, False), "this place?", black, 'Midleft', plx-70, ply-40)
+                pygame.draw.rect(displayScreen, black, (plx+65, ply-45, 50, 20), 1)
+                displayText(False, text_font('arial', 15, False, False), 'SPACE', black, 'Center', plx+90, ply-35)
+                if pygame.key.get_pressed()[pygame.K_SPACE]:
+                    dialoguelist.remove([context, area])
+                    dialogue_display = False
+    elif area == 'Area1':
+        if context == 'disgust':
+            if [context, area] in dialoguelist:
+                dialogue_display = True
+                curved_rect(white, plx-80, ply-100, 200, 80)
+                displayText(False, text_font('arial', 20, False, False), "What is this smell?!?", black, 'Midleft', plx-70, ply-80)
+                displayText(False, text_font('arial', 20, False, False), "Ugh... I think i'm", black, 'Midleft', plx-70, ply-60)
+                displayText(False, text_font('arial', 20, False, False), "gonna throwup...", black, 'Midleft', plx-70, ply-40)
+                pygame.draw.rect(displayScreen, black, (plx+65, ply-45, 50, 20), 1)
+                displayText(False, text_font('arial', 15, False, False), 'SPACE', black, 'Center', plx+90, ply-35)
+                if pygame.key.get_pressed()[pygame.K_SPACE]:
+                    dialoguelist.remove([context, area])
+                    dialogue_display = False
+        if context == 'block area':
+            if [context, area] in dialoguelist:
+                dialogue_display = True
+                curved_rect(white, 980, ply-100, 200, 80)
+                displayText(False, text_font('arial', 20, False, False), "So much blood... It may", black, 'Midleft', 990, ply-80)
+                displayText(False, text_font('arial', 20, False, False), "be dangerous.", black, 'Midleft', 990, ply-55)
+                pygame.draw.rect(displayScreen, black, (1125, ply-45, 50, 20), 1)
+                displayText(False, text_font('arial', 15, False, False), 'SPACE', black, 'Center', 1150, ply-35)
+                if pygame.key.get_pressed()[pygame.K_SPACE]:
+                    dialoguelist.remove([context, area])
+                    dialogue_display = False
+        if context == 'town':
+             if [context, area] in dialoguelist:
+                dialogue_display = True
+                curved_rect(white, plx-80, ply-100, 200, 80)
+                displayText(False, text_font('arial', 20, False, False), "Finally, a town!", black, 'Midleft', plx-70, ply-80)
+                displayText(False, text_font('arial', 20, False, False), "Time to figure out what", black, 'Midleft', plx-70, ply-60)
+                displayText(False, text_font('arial', 20, False, False), "is going on here.", black, 'Midleft', plx-70, ply-40)
+                pygame.draw.rect(displayScreen, black, (plx+65, ply-45, 50, 20), 1)
+                displayText(False, text_font('arial', 15, False, False), 'SPACE', black, 'Center', plx+90, ply-35)
                 if pygame.key.get_pressed()[pygame.K_SPACE]:
                     dialoguelist.remove([context, area])
                     dialogue_display = False
 
 
 def back_button(loop):
-    global paused
     if paused:
         create_button(white, grey, 'Play', 6, 6, 60, 41, loop, 'rectangle')
     else:
@@ -170,7 +235,7 @@ def back_button(loop):
 
 
 def health_bar():
-    health_bar = pygame.Surface((maxhealth*3, 20))
+    health_bar = pygame.Surface((max_health*3, 20))
     health_bar.set_alpha(100)
     health_bar.fill(black)
     displayScreen.blit(health_bar, (20, 20))
@@ -180,9 +245,28 @@ def health_bar():
     health.fill(red)
     displayScreen.blit(health, (20, 20))
 
-    pygame.draw.rect(displayScreen, white, (20, 20, maxhealth*3, 20), 1)
+    pygame.draw.rect(displayScreen, white, (20, 20, max_health*3, 20), 1)
     displayText(False, text_font('microsofthimalaya', 30, False, True),
                 '{}'.format(current_health), white, 'Center', 40, 33)
+
+
+def stats():
+    if display_stats:
+        stats_board = pygame.Surface((180, 100))
+        stats_board.set_alpha(100)
+        stats_board.fill(black)
+        displayScreen.blit(stats_board, (20, 40))
+        pygame.draw.rect(displayScreen, white, (20, 40, 180, 100), 1)
+        displayText(False, text_font('arial', 15, False, True),
+                'Gold = {}'.format(gold), white, 'Midleft', 30, 50)
+        displayText(False, text_font('arial', 15, False, True),
+                'Lost Souls = {}'.format(lost_souls), white, 'Midleft', 30, 70)
+        displayText(False, text_font('arial', 15, False, True),
+                'Attack = {}'.format(damage), white, 'Midleft', 30, 90)
+        displayText(False, text_font('arial', 15, False, True),
+                'Defense = {}'.format(defense), white, 'Midleft', 30, 110)
+        displayText(False, text_font('arial', 15, False, True),
+                'Max Health = {}'.format(max_health), white, 'Midleft', 30, 130)
 
 
 def pause(loop):
@@ -206,28 +290,26 @@ def pause(loop):
 
 
 def instructions(animation):
-    global instruction_display
     if instruction_display:
         animation = False
     displayText(animation, text_font('arial', 25, True, False), 'Instructions', black, 'Midleft', 785, 70)
-    displayText(animation, text_font('arial', 25, True, False), 'WASD = controls', black, 'Midleft', 620, 100)
-    displayText(animation, text_font('arial', 25, True, False), 'Space = attack/use item', black, 'Midleft', 620, 120)
-    displayText(animation, text_font('arial', 25, True, False), 'Shift = sprint', black, 'Midleft', 620, 140)
-    displayText(animation, text_font('arial', 25, True, False), 'Inventory = 1-5', black, 'Midleft', 620, 160)
-    displayText(animation, text_font('arial', 25, True, False), 'Enter = talk', black, 'Midleft', 620, 180)
-    displayText(animation, text_font('arial', 25, True, False), 'Goal', black, 'Midleft', 815, 220)
-    displayText(animation, text_font('arial', 25, True, False), '-Kill as many enemies as possible and earn', black, 'Midleft', 620, 265)
-    displayText(animation, text_font('arial', 25, True, False), 'rewards!', black, 'Midleft', 627, 284)
-    displayText(animation, text_font('arial', 25, True, False), '-Killing enemies will drop materials and', black, 'Midleft', 620, 312)
-    displayText(animation, text_font('arial', 25, True, False), 'use materials to upgrade yourself!', black, 'Midleft', 627, 334)
-    displayText(animation, text_font('arial', 25, True, False), '-The more you explore, the more you will find', black, 'Midleft', 620, 362)
-    displayText(animation, text_font('arial', 25, True, False), 'upgrades and side quest!', black, 'Midleft', 627, 384)
-    displayText(animation, text_font('arial', 25, True, False), '-To win the game, you will need to kill the boss', black, 'Midleft', 620, 412)
-    displayText(animation, text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 434)
+    displayText(animation, text_font('arial', 25, True, False), 'WASD/arrow keys = controls', black, 'Midleft', 620, 100)
+    displayText(animation, text_font('arial', 25, True, False), 'Space = attack/talk', black, 'Midleft', 620, 125)
+    displayText(animation, text_font('arial', 25, True, False), 'Shift = sprint', black, 'Midleft', 620, 150)
+    displayText(animation, text_font('arial', 25, True, False), 'Hold LCTRL (left control) for stats', black, 'Midleft', 620, 175)
+    displayText(animation, text_font('arial', 25, True, False), 'ESC (escape) = Pause', black, 'Midleft', 620, 200)
+    displayText(animation, text_font('arial', 25, True, False), 'Goal', black, 'Midleft', 815, 240)
+    displayText(animation, text_font('arial', 25, True, False), '-Kill as many enemies as possible and earn', black, 'Midleft', 620, 270)
+    displayText(animation, text_font('arial', 25, True, False), 'rewards!', black, 'Midleft', 627, 290)
+    displayText(animation, text_font('arial', 25, True, False), '-Killing enemies will drop materials and', black, 'Midleft', 620, 315)
+    displayText(animation, text_font('arial', 25, True, False), 'use materials to upgrade yourself!', black, 'Midleft', 627, 335)
+    displayText(animation, text_font('arial', 25, True, False), '-The more you explore, the more you will find', black, 'Midleft', 620, 360)
+    displayText(animation, text_font('arial', 25, True, False), 'upgrades and side quest!', black, 'Midleft', 627, 380)
+    displayText(animation, text_font('arial', 25, True, False), '-To win the game, you will need to kill the boss', black, 'Midleft', 620, 405)
+    displayText(animation, text_font('arial', 25, True, False), 'and all the enemies will leave the world :)', black, 'Midleft', 627, 425)
 
 
 def character(charpos):
-    global plx, ply
     if charpos == 'Left':
         # head
         curved_rect(peach, plx, ply, 42, 36)
@@ -236,8 +318,8 @@ def character(charpos):
         pygame.draw.rect(displayScreen, black, (plx+4, ply+12, 8, 4))
         pygame.draw.rect(displayScreen, black, (plx+22, ply+12, 8, 4))
         # hair
-        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx-10, ply-10, 52, 20))
-        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx+32, ply-5, 15, 36))
+        pygame.draw.ellipse(displayScreen, dark_brown, (plx-10, ply-10, 52, 20))
+        pygame.draw.ellipse(displayScreen, dark_brown, (plx+32, ply-5, 15, 36))
         # neck
         pygame.draw.rect(displayScreen, tan, (plx+15, ply+36, 12, 2))
         # legs
@@ -245,12 +327,16 @@ def character(charpos):
         pygame.draw.polygon(displayScreen, black, [(plx+30, ply+74), (plx+34, ply+78), (plx+36, ply+78), (plx+36, ply+69)])
         # lefthand
         pygame.draw.circle(displayScreen, peach, (plx+5, ply+55), 5)
+        if attack_speed_count == attack_speed:
+            pygame.draw.circle(displayScreen, golden, (plx+5, ply+55), 6, 2)
         # body
         curved_rect(black, plx+5, ply+38, 32, 36)
         # righthand
         pygame.draw.circle(displayScreen, black, (plx+35, ply+45), 5)
         pygame.draw.circle(displayScreen, black, (plx+31, ply+50), 5)
         pygame.draw.circle(displayScreen, peach, (plx+27, ply+55), 5)
+        if attack_speed_count == attack_speed:
+            pygame.draw.circle(displayScreen, golden, (plx+27, ply+55), 6, 2)
 
     elif charpos == 'Right':
         # head
@@ -260,8 +346,8 @@ def character(charpos):
         pygame.draw.rect(displayScreen, black, (plx+12, ply+12, 8, 4))
         pygame.draw.rect(displayScreen, black, (plx+30, ply+12, 8, 4))
         # hair
-        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx, ply-10, 52, 20))
-        pygame.draw.ellipse(displayScreen, cardboard_brown, (plx-5, ply-5, 15, 36))
+        pygame.draw.ellipse(displayScreen, dark_brown, (plx, ply-10, 52, 20))
+        pygame.draw.ellipse(displayScreen, dark_brown, (plx-5, ply-5, 15, 36))
         # neck
         pygame.draw.rect(displayScreen, tan, (plx+15, ply+36, 12, 2))
         # legs
@@ -269,16 +355,27 @@ def character(charpos):
         pygame.draw.polygon(displayScreen, black, [(plx+30, ply+74), (plx+30, ply+78), (plx+32, ply+78), (plx+36, ply+74), (plx+36, ply+69)])
         # righthand
         pygame.draw.circle(displayScreen, peach, (plx+37, ply+55), 5)
+        if attack_speed_count == attack_speed:
+            pygame.draw.circle(displayScreen, golden, (plx+37, ply+55), 6, 2)
         # body
         curved_rect(black, plx+5, ply+38, 32, 36)
         # lefthand
         pygame.draw.circle(displayScreen, black, (plx+7, ply+45), 5)
         pygame.draw.circle(displayScreen, black, (plx+11, ply+50), 5)
         pygame.draw.circle(displayScreen, peach, (plx+15, ply+55), 5)
+        if attack_speed_count == attack_speed:
+            pygame.draw.circle(displayScreen, golden, (plx+15, ply+55), 6, 2)
+
+
+def player_dead(charpos):
+    displayScreen.fill(bright_red)
+    character(charpos)
+    displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
+    displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
 
 
 def enemy(monsterlst):
-    global direction, spotplayer, monsterdead, current_health, attack, damage, attackspeed, points, cleared
+    global direction, spotplayer, monsterdead, current_health, attack, damage, attack_speed_count, lost_souls, cleared
     for i in range(len(monsterlst)):
         if i == len(monsterlst)-1:
             followx = plx
@@ -289,35 +386,35 @@ def enemy(monsterlst):
 
         if monsterlst[i][5] == 'zombie':
             if monsterlst[i][4] == 'Left':
-                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
-                pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
+                pygame.draw.rect(displayScreen, dark_dark_green, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
+                pygame.draw.circle(displayScreen, dark_green, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]-6, monsterlst[i][1]-32, 4, 8))
-                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
-                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0], monsterlst[i][1]), (monsterlst[i][0], monsterlst[i][1]+10), (monsterlst[i][0]-22, monsterlst[i][1]+20)))
+                pygame.draw.rect(displayScreen, dark_blue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
+                pygame.draw.polygon(displayScreen, dark_blue, ((monsterlst[i][0], monsterlst[i][1]), (monsterlst[i][0], monsterlst[i][1]+10), (monsterlst[i][0]-22, monsterlst[i][1]+20)))
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
 
             elif monsterlst[i][4] == 'Right':
-                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
-                pygame.draw.circle(displayScreen, darkgreen, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
+                pygame.draw.rect(displayScreen, dark_dark_green, (monsterlst[i][0]+2, monsterlst[i][1]-10, 13, 10))
+                pygame.draw.circle(displayScreen, dark_green, (monsterlst[i][0]+8, monsterlst[i][1]-30), 25)
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+18, monsterlst[i][1]-32, 4, 8))
-                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
-                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+18, monsterlst[i][1]), (monsterlst[i][0]+18, monsterlst[i][1]+10), (monsterlst[i][0]+44, monsterlst[i][1]+20)))
+                pygame.draw.rect(displayScreen, dark_blue, (monsterlst[i][0], monsterlst[i][1], 18, 40))
+                pygame.draw.polygon(displayScreen, dark_blue, ((monsterlst[i][0]+18, monsterlst[i][1]), (monsterlst[i][0]+18, monsterlst[i][1]+10), (monsterlst[i][0]+44, monsterlst[i][1]+20)))
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+2, monsterlst[i][1]+40, 13, 30))
         elif monsterlst[i][5] == 'boss':
             spotplayer = True
             if monsterlst[i][4] == 'Left':
-                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+12, monsterlst[i][1]-10, 23, 20))
+                pygame.draw.rect(displayScreen, dark_dark_green, (monsterlst[i][0]+12, monsterlst[i][1]-10, 23, 20))
                 pygame.draw.circle(displayScreen, red, (monsterlst[i][0]+20, monsterlst[i][1]-35), 35)
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]-10, monsterlst[i][1]-40, 10, 10))
-                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0]+10, monsterlst[i][1], 28, 50))
-                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+10, monsterlst[i][1]),(monsterlst[i][0]+10, monsterlst[i][1]+10),(monsterlst[i][0]-22, monsterlst[i][1]+20)))
+                pygame.draw.rect(displayScreen, dark_blue, (monsterlst[i][0]+10, monsterlst[i][1], 28, 50))
+                pygame.draw.polygon(displayScreen, dark_blue, ((monsterlst[i][0]+10, monsterlst[i][1]),(monsterlst[i][0]+10, monsterlst[i][1]+10),(monsterlst[i][0]-22, monsterlst[i][1]+20)))
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+12, monsterlst[i][1]+40, 23, 40))
             elif monsterlst[i][4] == 'Right':
-                pygame.draw.rect(displayScreen, darkdarkgreen, (monsterlst[i][0]+12, monsterlst[i][1]-10, 23, 20))
+                pygame.draw.rect(displayScreen, dark_dark_green, (monsterlst[i][0]+12, monsterlst[i][1]-10, 23, 20))
                 pygame.draw.circle(displayScreen, red, (monsterlst[i][0]+20, monsterlst[i][1]-35), 35)
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+35, monsterlst[i][1]-40, 10, 10)) 
-                pygame.draw.rect(displayScreen, darkblue, (monsterlst[i][0]+10, monsterlst[i][1], 28, 50))
-                pygame.draw.polygon(displayScreen, darkblue, ((monsterlst[i][0]+28, monsterlst[i][1]),(monsterlst[i][0]+28, monsterlst[i][1]+10),(monsterlst[i][0]+64,monsterlst[i][1]+20))) 
+                pygame.draw.rect(displayScreen, dark_blue, (monsterlst[i][0]+10, monsterlst[i][1], 28, 50))
+                pygame.draw.polygon(displayScreen, dark_blue, ((monsterlst[i][0]+28, monsterlst[i][1]),(monsterlst[i][0]+28, monsterlst[i][1]+10),(monsterlst[i][0]+64,monsterlst[i][1]+20))) 
                 pygame.draw.rect(displayScreen, black, (monsterlst[i][0]+12, monsterlst[i][1]+40, 23, 30))
 
         if monsterlst[0][2] > 0:
@@ -333,7 +430,7 @@ def enemy(monsterlst):
         if ply in range(monsterlst[i][0]-10, monsterlst[i][0]+11) or plx in range(monsterlst[i][1]-10, monsterlst[i][1]+11):
             spotplayer = True
 
-        if spotplayer:
+        if not paused and spotplayer:
             if monsterlst[i][0] == plx and monsterlst[i][1] in range(ply-50, ply):
                 if monsterlst[i][3] < 100:
                     monsterlst[i][3] += 1
@@ -343,7 +440,7 @@ def enemy(monsterlst):
                 if attack:
                     monsterlst[i][2] -= damage
                     attack = False
-                    attackspeed = 0
+                    attack_speed_count = 0
             elif monsterlst[i][0] == plx and monsterlst[i][1] in range(ply, ply+50):
                 if monsterlst[i][3] < 100:
                     monsterlst[i][3] += 1
@@ -353,7 +450,7 @@ def enemy(monsterlst):
                 if attack:
                     monsterlst[i][2] -= damage
                     attack = False
-                    attackspeed = 0
+                    attack_speed_count = 0
             elif monsterlst[i][1] == ply and monsterlst[i][0] in range(plx-50, plx):
                 if monsterlst[i][3] < 100:
                     monsterlst[i][3] += 1
@@ -363,7 +460,7 @@ def enemy(monsterlst):
                 if attack:
                     monsterlst[i][2] -= damage
                     attack = False
-                    attackspeed = 0
+                    attack_speed_count = 0
             elif monsterlst[i][1] == ply and monsterlst[i][0] in range(plx, plx+50):
                 if monsterlst[i][3] < 100:
                     monsterlst[i][3] += 1
@@ -373,7 +470,7 @@ def enemy(monsterlst):
                 if attack:
                     monsterlst[i][2] -= damage
                     attack = False
-                    attackspeed = 0
+                    attack_speed_count = 0
 
             if direction == 'y':
                 if followx > monsterlst[i][0]:
@@ -412,7 +509,7 @@ def enemy(monsterlst):
     if monsterdead:
         monsterlst.pop(0)
         monsterdead = False
-        points += 1
+        lost_souls += 1
 
 
 def npc(xloc, yloc, charpos, eye_colour, skin_colour, shadow_skin_colour, shirt_colour, shirt_colour2, pants_colour):
@@ -558,7 +655,7 @@ def manual():
 
 
 def start_area():
-    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack, dialogue_display
+    global plx, ply, paused, display_stats, current_health, game_area, direction, attack_speed_count, attack, dialogue_display, tutorial
     charpos = 'Right'
     game_area = 'start'
     tree_coords = [(265, 400), (80, 230), (540, 100)]
@@ -568,6 +665,7 @@ def start_area():
         xmov = 0
         ymov = 0
         ms = 3
+        display_stats = False
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -582,33 +680,34 @@ def start_area():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+        if pygame.key.get_mods() == pygame.KMOD_LCTRL:
+            display_stats = True
+
         if keys[pygame.K_SPACE]:
             if not paused and not dialogue_display:
-                if attackspeed == 40:
+                if attack_speed_count == attack_speed:
                     attack = True
-                else:
-                    attack = False
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             if not paused and not dialogue_display:
                 direction = 'y'
-                if ply-58 <= 0:
+                if ply-20 <= 0:
                     ymov = 0
                 else:
                     ymov = -1
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             if not paused and not dialogue_display:
                 direction = 'y'
-                if ply+68 >= 640 and plx not in range(596, 669):
+                if ply+80 >= 640 and plx not in range(596, 669):
                     ymov = 0
                 elif ply >= 138 and plx+52 > 1200:
                     ymov = 0
                 else:
                     ymov = 1
 
-            if ply >= 675:
+            if ply >= 650:
                 starting_area = False
-                ply = 40
+                ply = 0
                 fight_area_1()
 
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
@@ -626,17 +725,21 @@ def start_area():
             if not paused and not dialogue_display:
                 charpos = 'Right'
                 direction = 'x'
-                if plx+52 >= 1200 and ply > 140:
+                if plx+52 >= 1200 and ply not in range(40, 141):
                     xmov = 0
                 elif plx >= 668 and ply+68 > 640:
                     xmov = 0
                 else:
                     xmov = 1
-
-                if plx >= 1225:
-                    starting_area = False
-                    plx = 0
-                    fight_area_3()
+                    
+                if tutorial:
+                    if plx >= 1140:
+                        xmov = 0
+                else:
+                    if plx >= 1225:
+                        starting_area = False
+                        plx = 0
+                        fight_area_3()
 
         plx += xmov * ms
         ply += ymov * ms
@@ -659,37 +762,43 @@ def start_area():
                 tree(tree_coords)
                 character(charpos)
 
-            if attackspeed < 40:
-                attackspeed += 1
+            if not paused and not dialogue_display and not tutorial:
+                if attack_speed_count < attack_speed:
+                    attack_speed_count += 1
 
             dialogue('intro', 'Start')
+            if plx >= 1140 and ply in range(40, 141):
+                dialogue('block area', 'Start')
+            if ply+80 >= 640 and plx in range(596, 669):
+                dialogue('enter area', 'Start')
+
+            stats()
             health_bar()
 
             pause(starting_area)
         else:
-            displayScreen.fill(bright_red)
-            character(charpos)
-            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
-            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
+            player_dead(charpos)
 
         pygame.display.update()
         clock.tick(60)
 
 
 def fight_area_1():
-    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack
+    global plx, ply, paused, display_stats, current_health, game_area, direction, attack_speed_count, attack, dialogue_display, tutorial
     charpos = 'Right'
     game_area = 'fight 1'
     tree_coords = [(300, 550), (850, 100)]
-    monsterlst = [[100, 100, 100, 100, 'Right', 'zombie']] # [x, y, health, attackspeed, direction, monster type]
+    monsterlst = [[100, 100, 100, 100, 'Right', 'zombie']] # [x, y, health, attack speed, direction, monster type]
+    attack = False
     area1 = True
 
     while area1:
         xmov = 0
         ymov = 0
         ms = 3
-        damaged = 0
+        display_stats = False
         keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -703,16 +812,18 @@ def fight_area_1():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+        if pygame.key.get_mods() == pygame.KMOD_LCTRL:
+            display_stats = True
 
         if keys[pygame.K_SPACE]:
-            if attackspeed == 40:
-                attack = True
-            else:
-                attack = False
+            if not paused and not dialogue_display:
+                if attack_speed_count == attack_speed:
+                    attack = True
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            if not paused:
-                if ply-58 <= 0 and plx not in range(596, 669):
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply-20 <= 0 and plx not in range(596, 669):
                     ymov = 0
                 elif plx+52 >= 1200 and ply < 136:
                     ymov = 0
@@ -725,9 +836,9 @@ def fight_area_1():
                     start_area()
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            if not paused:
-                charpos = 'Left'
-                if ply+68 >= 640 and plx not in range(546, 619):
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply+80 >= 640 and plx not in range(546, 619):
                     ymov = 0
                 elif plx+52 >= 1200 and ply > 226:
                     ymov = 0
@@ -736,12 +847,13 @@ def fight_area_1():
 
             if ply >= 675:
                 area1 = False
-                ply = 40
+                ply = 0
                 town()
 
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Left'
+                direction = 'x'
                 if plx-20 <= 0:
                     xmov = 0
                 elif plx <= 596 and ply < 56 or plx <= 546 and ply+68 > 640:
@@ -750,8 +862,9 @@ def fight_area_1():
                     xmov = -1
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Right'
+                direction = 'x'
                 if plx+52 >= 1200 and ply not in range(132, 232):
                     xmov = 0
                 elif plx >= 668 and ply < 56 or plx >= 618 and ply+68 > 640:
@@ -759,10 +872,14 @@ def fight_area_1():
                 else:
                     xmov = 1
 
-                if plx >= 1225:
-                    area1 = False
-                    plx = 0
-                    fight_area_2()
+                if tutorial:
+                    if plx >= 1140:
+                        xmov = 0
+                else:
+                    if plx >= 1225:
+                        area1 = False
+                        plx = 0
+                        fight_area_2()
 
         plx += xmov * ms
         ply += ymov * ms
@@ -775,41 +892,51 @@ def fight_area_1():
             pygame.draw.rect(displayScreen, cardboard_brown, (550, 400, 100, 240))
             pygame.draw.polygon(displayScreen, cardboard_brown, [(70, 100), (50, 160), (300, 260), (320, 200)])
 
-            enemy(monsterlst)
+            if not tutorial:
+                enemy(monsterlst)
 
             tree(tree_coords)
 
             character(charpos)
 
-            if attackspeed < 40:
-                attackspeed += 1
+            if not paused and not dialogue_display and not tutorial:
+                if attack_speed_count < attack_speed:
+                    attack_speed_count += 1
 
+            if plx >= 1140 and ply in range(132, 232):
+                dialogue('block area', 'Area1')
+            if ply >= 300:
+                dialogue('disgust', 'Area1')
+            if ply+80 >= 640 and plx in range(546, 619):
+                dialogue('town', 'Area1')
+
+            stats()
             health_bar()
 
             pause(area1)
         else:
-            displayScreen.fill(bright_red)
-            character(charpos)
-            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
-            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
+            player_dead(charpos)
+
         pygame.display.update()
         clock.tick(60)
 
 
 def fight_area_2():
-    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack
+    global plx, ply, paused, display_stats, current_health, game_area, direction, attack_speed_count, attack, dialogue_display
     charpos = 'Right'
     game_area = 'fight 2'
     tree_coords = [(1000, 450)]
     monsterlst = []
+    attack = False
     area2 = True
 
     while area2:
         xmov = 0
         ymov = 0
         ms = 3
-        damaged = 0
+        display_stats = False
         keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -823,16 +950,18 @@ def fight_area_2():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+        if pygame.key.get_mods() == pygame.KMOD_LCTRL:
+            display_stats = True
 
         if keys[pygame.K_SPACE]:
-            if attackspeed == 40:
-                attack = True
-            else:
-                attack = False
+            if not paused and not dialogue_display:
+                if attack_speed_count == attack_speed:
+                    attack = True
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            if not paused:
-                if ply-58 <= 0 and plx not in range(596, 669):
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply-20 <= 0 and plx not in range(596, 669):
                     ymov = 0
                 elif plx <= 0 and ply < 136:
                     ymov = 0
@@ -845,8 +974,9 @@ def fight_area_2():
                     fight_area_3()
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            if not paused:
-                if ply+68 >= 640 and plx not in range(596, 669):
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply+80 >= 640 and plx not in range(596, 669):
                     ymov = 0
                 elif plx <= 0 and ply > 226:
                     ymov = 0
@@ -855,12 +985,13 @@ def fight_area_2():
 
                 if ply >= 675:
                     area2 = False
-                    ply = 40
+                    ply = 0
                     boss_area()
 
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Left'
+                direction = 'x'
                 if plx-20 <= 0 and ply not in range(132, 232):
                     xmov = 0
                 elif plx <= 596 and ply < 56 or plx <= 596 and ply+68 > 640:
@@ -874,8 +1005,9 @@ def fight_area_2():
                     fight_area_1()
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Right'
+                direction = 'x'
                 if plx+52 >= 1200:
                     xmov = 0
                 elif plx >= 668 and ply < 56 or plx >= 668 and ply+68 > 640:
@@ -899,35 +1031,37 @@ def fight_area_2():
 
             character(charpos)
 
-            if attackspeed < 40:
-                attackspeed += 1
+            if not paused and not dialogue_display:
+                if attack_speed_count < attack_speed:
+                    attack_speed_count += 1
 
+            stats()
             health_bar()
 
             pause(area2)
         else:
-            displayScreen.fill(bright_red)
-            character(charpos)
-            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
-            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
+            player_dead(charpos)
+
         pygame.display.update()
         clock.tick(60)
 
 
 def fight_area_3():
-    global plx, ply, paused, current_health, game_area, direction, attackspeed, attack
+    global plx, ply, paused, display_stats, current_health, game_area, direction, attack_speed_count, attack, dialogue_display
     charpos = 'Right'
     game_area = 'fight 3'
     tree_coords = [(1000, 450)]
     monsterlst = []
+    attack = False
     area3 = True
 
     while area3:
         xmov = 0
         ymov = 0
         ms = 3
-        damaged = 0
+        display_stats = False
         keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -941,23 +1075,26 @@ def fight_area_3():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+        if pygame.key.get_mods() == pygame.KMOD_LCTRL:
+            display_stats = True
 
         if keys[pygame.K_SPACE]:
-            if attackspeed == 40:
-                attack = True
-            else:
-                attack = False
+            if not paused  and not dialogue_display:
+                if attack_speed_count == attack_speed:
+                    attack = True
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            if not paused:
-                if ply-58 <= 0:
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply-20 <= 0:
                     ymov = 0
                 else:
                     ymov = -1
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            if not paused:
-                if ply+68 >= 640 and plx not in range(596, 669):
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply+80 >= 640 and plx not in range(596, 669):
                     ymov = 0
                 elif ply >= 138 and plx < 0:
                     ymov = 0
@@ -966,12 +1103,13 @@ def fight_area_3():
 
             if ply >= 675:
                 area3 = False
-                ply = 40
+                ply = 0
                 fight_area_2()
 
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Left'
+                direction = 'x'
                 if plx-20 <= 0 and ply > 140:
                     xmov = 0
                 elif plx <= 596 and ply+68 > 640:
@@ -985,8 +1123,9 @@ def fight_area_3():
                     start_area()
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Right'
+                direction = 'x'
                 if plx+52 >= 1200:
                     xmov = 0
                 elif plx >= 668 and ply+68 > 640:
@@ -1009,35 +1148,37 @@ def fight_area_3():
             tree(tree_coords)
             character(charpos)
 
-            if attackspeed < 40:
-                attackspeed += 1
+            if not paused and not dialogue_display:
+                if attack_speed_count < attack_speed:
+                    attack_speed_count += 1
 
+            stats()
             health_bar()
 
             pause(area3)
         else:
-            displayScreen.fill(bright_red)
-            character(charpos)
-            displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
-            displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
+            player_dead(charpos)
+
         pygame.display.update()
         clock.tick(60)
 
 
 def boss_area():
-    global plx, ply, paused, current_health, game_area, attackspeed, attack, cleared
+    global plx, ply, paused, display_stats, current_health, game_area, attack_speed_count, attack, cleared, dialogue_display
     charpos = 'Right'
     game_area = 'boss'
     tree_coords = [(400, 200), (1000, 300)]
     monsterlst = [[600, 300, 500, 100, 'Right', 'boss']]
+    attack = False
     last_area = True
 
     while last_area:
         xmov = 0
         ymov = 0
         ms = 3
-        damaged = 0
+        display_stats = False
         keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -1051,30 +1192,34 @@ def boss_area():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+        if pygame.key.get_mods() == pygame.KMOD_LCTRL:
+            display_stats = True
 
         if keys[pygame.K_SPACE]:
-            if attackspeed == 40:
-                attack = True
-            else:
-                attack = False
+            if not paused and not dialogue_display:
+                if attack_speed_count == attack_speed:
+                    attack = True
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            if not paused:
-                if ply-58 <= 0:
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply-20 <= 0:
                     ymov = 0
                 else:
                     ymov = -1
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            if not paused:
-                if ply+68 >= 640:
+            if not paused and not dialogue_display:
+                direction = 'y'
+                if ply+80 >= 640:
                     ymov = 0
                 else:
                     ymov = 1
 
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Left'
+                direction = 'x'
                 if plx-20 <= 0:
                     xmov = 0
                 elif plx <= 496 and ply < 56:
@@ -1083,8 +1228,9 @@ def boss_area():
                     xmov = -1
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Right'
+                direction = 'x'
                 if plx+52 >= 1200:
                     xmov = 0
                 elif plx >= 668 and ply < 56:
@@ -1101,40 +1247,50 @@ def boss_area():
                 pygame.draw.rect(displayScreen, grey, (500, 0, 200, 640))
                 pygame.draw.rect(displayScreen, grey, (700, 200, 500, 200))
                 pygame.draw.polygon(displayScreen, brown,[(70,100), (50,160), (300,260), (320,200)])
+
                 enemy(monsterlst)
                 tree(tree_coords)
                 character(charpos)
-                if attackspeed < 40:
-                    attackspeed += 1
 
+                if not paused and not dialogue_display:
+                    if attack_speed_count < attack_speed:
+                        attack_speed_count += 1
+
+                stats()
                 health_bar()
             else:
-                displayScreen.fill(bright_red)
-                character(charpos)
-                displayText(False, text_font('arial', 50, True, False), 'You Died', black, 'Midleft', 500, 320)
-                displayText(False, text_font('arial', 25, True, False), 'You are filled with determination...', black, 'Midleft', 430, 400)
+                player_dead(charpos)
         else:
             displayScreen.fill(white)
             character(charpos)
             displayText(False, text_font('arial', 50, True, False), 'Congratulations!', black, 'Midleft', 420, 320)
             displayText(False, text_font('arial', 25, True, False), 'You SURVIVED', black, 'Midleft', 500, 400)
+
         pygame.display.update()
         clock.tick(60)
 
 
 def town():
-    global plx, ply, paused, current_health, game_area, attackspeed, attack
+    global plx, ply, paused, display_stats, current_health, game_area, attack_speed_count, attack, dialogue_display, dialoguelist, tutorial
     charpos = 'Right'
     game_area = 'town'
     tree_coords = [(300, 550), (850, 100)]
+    if tutorial:
+        if ['block area', 'Start'] in dialoguelist:
+            dialoguelist.remove(['block area', 'Start'])
+        if ['block area', 'Area1'] in dialoguelist:
+            dialoguelist.remove(['block area', 'Area1'])
+        tutorial = False
+    attack = False
     town_area = True
 
     while town_area:
         xmov = 0
         ymov = 0
         ms = 3
-        damaged = 0
+        display_stats = False
         keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -1148,16 +1304,17 @@ def town():
 
         if pygame.key.get_mods() == pygame.KMOD_LSHIFT:
             ms = 5
+        if pygame.key.get_mods() == pygame.KMOD_LCTRL:
+            display_stats = True
 
         if keys[pygame.K_SPACE]:
-            if attackspeed == 40:
-                attack = True
-            else:
-                attack = False
+            if not paused and not dialogue_display:
+                if attack_speed_count == attack_speed:
+                    attack = True
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            if not paused:
-                if ply-58 <= 0 and plx not in range(496, 669):
+            if not paused and not dialogue_display:
+                if ply-20 <= 0 and plx not in range(496, 669):
                     ymov = 0
                 else:
                     ymov = -1
@@ -1169,14 +1326,14 @@ def town():
                     fight_area_1()
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            if not paused:
-                if ply+68 >= 640:
+            if not paused and not dialogue_display:
+                if ply+80 >= 640:
                     ymov = 0
                 else:
                     ymov = 1
 
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Left'
                 if plx-20 <= 0:
                     xmov = 0
@@ -1186,7 +1343,7 @@ def town():
                     xmov = -1
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            if not paused:
+            if not paused and not dialogue_display:
                 charpos = 'Right'
                 if plx+52 >= 1200:
                     xmov = 0
@@ -1229,9 +1386,11 @@ def town():
 
         character(charpos)
 
-        if attackspeed < 40:
-            attackspeed += 1
+        if not paused and not dialogue_display:
+                if attack_speed_count < attack_speed:
+                    attack_speed_count += 1
 
+        stats()
         health_bar()
 
         pause(town_area)
